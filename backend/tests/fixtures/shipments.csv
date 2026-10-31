@@ -1,0 +1,5 @@
+Shipment ID,Arrival Date,Consignee,Consignee Address,Consignee Country,Shipper,Shipper Country,HS Code,Product Description,Weight (kg),Value USD
+SYN-001,2026-03-14,Fixture Film Converters Inc,"100 Test Ave, Houston, TX",United States,Fixture Petrochem Co,Saudi Arabia,3901.10,LINEAR LOW DENSITY POLYETHYLENE LLDPE FILM GRADE,25000,26500
+SYN-002,2026-04-02,Fixture Film Converters Inc,"100 Test Ave, Houston, TX",United States,Fixture Petrochem Co,Saudi Arabia,390140,LLDPE RESIN 1018 PRIME,24750,25900
+SYN-003,2026-05-20,Sample Recycling Test LLC,,United States,Example Plastics Vietnam Test JSC,Vietnam,391510,PE SCRAP FILM BALES,18000,4200
+SYN-004,2026-05-21,,,United States,,Vietnam,390120,HDPE,1000,1100

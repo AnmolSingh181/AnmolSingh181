@@ -1,0 +1,230 @@
+# Configurable plastics terminology dictionary used by the rule-based classifier.
+# Patterns are case-insensitive Python regular expressions. Add terms here without code changes.
+# Order matters for polymers: LLDPE phrases are matched (and masked) before LDPE phrases.
+
+polymers:
+  LLDPE:
+    - '\bm?LLDPE\b'
+    - '\bL-LDPE\b'
+    - 'linear[\s-]+low[\s-]+density[\s-]+poly[\s-]?ethylene'
+    - '\bPE[\s-]?LLD\b'
+    - '\bLLD[\s-]?PE\b'
+    - '\bC[468][\s-]?LLDPE\b'
+  LDPE:
+    - '\bLDPE\b'
+    - '(?<!linear )(?<!linear-)low[\s-]+density[\s-]+poly[\s-]?ethylene'
+    - '\bPE[\s-]?LD\b'
+    - '\bLD[\s-]?PE\b'
+  HDPE:
+    - '\bHDPE\b'
+    - '\bHMW[\s-]?PE\b'
+    - 'high[\s-]+density[\s-]+poly[\s-]?ethylene'
+    - '\bPE[\s-]?HD\b'
+    - '\bHD[\s-]?PE\b'
+  PE_SCRAP:
+    - '\b(?:PE|polyethylene|LDPE|LLDPE|HDPE)\s+(?:scrap|waste|regrind|film\s+scrap|bales|lumps|purging)'
+  PE_OTHER:
+    - '\bMDPE\b'
+    - '\bUHMW[\s-]?PE\b'
+    - '\bEVA\b'
+    - 'ethylene[\s-]+vinyl[\s-]+acetate'
+
+# Grade / quality categories
+grades:
+  virgin_prime:
+    - '\bvirgin\b'
+    - '(?<!non-)(?<!non )(?<!near )(?<!near-)\bprime\s+(?:grade|quality|resin|material|polymer|LDPE|LLDPE|HDPE)'
+    - '\bfirst[\s-]+quality\b'
+    - '\bnew\s+resin\b'
+  near_prime:
+    - '\bnear[\s-]+prime\b'
+    - '\bwide[\s-]+spec(?:ification)?\b'
+    - '\bsecond[\s-]+(?:grade|quality)\b'
+  off_grade:
+    - '\boff[\s-]+grade\b'
+    - '\boffgrade\b'
+    - '\bout[\s-]+of[\s-]+grade\b'
+  off_spec:
+    - '\boff[\s-]+spec(?:ification)?s?\b'
+    - '\bout[\s-]+of[\s-]+spec(?:ification)?\b'
+  non_prime_unspecified:
+    - '\bnon[\s-]+prime\b'
+    - '\bnonprime\b'
+    - '\bsecondary\s+grade\b'
+  pcr:
+    - '\bpost[\s-]+consumer\b'
+    - '\bPCR\b'
+  pir:
+    - '\bpost[\s-]+industrial\b'
+    - '\bPIR\b'
+    - '\bpre[\s-]+consumer\b'
+  reprocessed:
+    - '\breprocessed\b'
+    - '\brepro\b'
+    - '\bre[\s-]?pelleti[sz]ed\b'
+    - '\bregranulate[ds]?\b'
+    - '\breground\b'
+  recycled:
+    - '\brecycled\b'
+    - '\br(?:LDPE|LLDPE|HDPE|PE)\b'
+    - '\bregrind\b'
+  scrap:
+    - '\bscrap\b'
+    - '\bwaste\s+(?:plastic|film|polyethylene|PE)\b'
+    - '\bbales?\b'
+    - '\blumps?\b'
+    - '\bpurging[s]?\b'
+
+applications:
+  film:
+    - '\bfilm[\s-]+grade\b'
+    - '\bblown[\s-]+film\b'
+    - '\bcast[\s-]+film\b'
+    - '\b(?:shrink|stretch|agricultural|agri|mulch|lamination|packaging)\s+film\b'
+    - '\bfilm\s+(?:extrusion|application|applications)\b'
+  extrusion:
+    - '\bextrusion[\s-]+grade\b'
+    - '\bgeneral[\s-]+purpose\s+extrusion\b'
+    - '\bsheet\s+extrusion\b'
+    - '\bprofile\s+extrusion\b'
+  coating:
+    - '\bextrusion[\s-]+coating\b'
+  blow_moulding:
+    - '\bblow[\s-]+mou?ld(?:ing|ed)?\b'
+    - '\bBM\s+grade\b'
+  injection_moulding:
+    - '\binjection[\s-]+mou?ld(?:ing|ed)?\b'
+    - '\bIM\s+grade\b'
+  rotomoulding:
+    - '\broto[\s-]?mou?ld(?:ing)?\b'
+    - '\brotational\s+mou?lding\b'
+  pipe:
+    - '\bpipe[\s-]+grade\b'
+    - '\bPE\s?100\b'
+    - '\bPE\s?80\b'
+  raffia_tape:
+    - '\braffia\b'
+    - '\btape\s+grade\b'
+    - '\bmonofilament\b'
+  wire_cable:
+    - '\bwire\s+(?:and|&)\s+cable\b'
+    - '\bcable\s+grade\b'
+
+forms:
+  pellets: ['\bpellets?\b']
+  granules: ['\bgranules?\b', '\bgranulate\b']
+  flakes: ['\bflakes?\b']
+  bales: ['\bbales?\b']
+  regrind: ['\bregrind\b']
+  lumps: ['\blumps?\b']
+  powder: ['\bpowder\b']
+  rolls: ['\brolls?\b', '\bjumbo\s+rolls?\b']
+  film_scrap: ['\bfilm\s+scrap\b']
+
+# Business activity (company_types)
+business_types:
+  manufacturer:
+    # resin producers only - finished-product makers are converters
+    - '\b(?:polyethylene|polymer|polyolefin|resin|petrochemical)s?\s+(?:producer|manufacturer|production\s+(?:plant|facility|capacity))'
+    - '\bpetrochemical\s+(?:company|complex|plant)\b'
+    - '\bpolymeri[sz]ation\b'
+    - '\b(?:cracker|steam\s+cracker)\b'
+    - '\bwe\s+(?:produce|manufacture)\s+(?:polyethylene|LDPE|LLDPE|HDPE|polymers?|resins?)'
+  trader:
+    - '\btrad(?:er|ers|ing)\s+(?:of|in|company|house)\b'
+    - '\b(?:plastic|polymer|resin|chemical)s?\s+trad(?:er|ers|ing)\b'
+    - '\bgeneral\s+trading\b'
+    - '\btrading\s+(?:llc|co|company|fze|fzco|est)\b'
+  distributor:
+    - '\bdistribut(?:or|ors|ion)\b'
+    - '\bauthori[sz]ed\s+(?:dealer|distributor|agent)\b'
+    - '\bstockist\b'
+  importer:
+    - '\bimporters?\b'
+    - '\bwe\s+import\b'
+    - '\bimport(?:ing)?\s+(?:of|from)\b'
+  exporter:
+    - '\bexporters?\b'
+    - '\bwe\s+export\b'
+    - '\bexport(?:ing)?\s+(?:to|of)\b'
+  recycler:
+    - '\brecycl(?:er|ers|ing\s+(?:company|plant|facility|services?))\b'
+    - '\bwe\s+recycle\b'
+  processor:
+    - '\bcompound(?:er|ers|ing)\b'
+    - '\breprocess(?:or|ors|ing)\b'
+    - '\bmasterbatch\b'
+  converter:
+    - '\b(?:manufacturer|maker|producer)s?\s+of\s+(?:plastic\s+)?(?:bags?|films?|pipes?|sheets?|bottles?|containers?|packaging|sacks?|liners?|tarpaulins?|crates?)'
+    - '\b(?:bag|film|pipe|packaging|bottle|container)\s+(?:manufacturer|maker|production)\b'
+    - '\bconvert(?:er|ers|ing)\b'
+    - '\bblown\s+film\s+(?:lines?|plant)\b'
+  scrap_aggregator:
+    - '\bscrap\s+(?:dealer|dealers|merchant|merchants|aggregator|collector|yard)\b'
+    - '\bwaste\s+(?:collection|collector|management)\b'
+
+# Buyer / seller intent - matched within a window around a polymer mention
+intent:
+  seller:
+    - '\bwe\s+(?:supply|offer|sell|export|provide|stock)\b'
+    - '\b(?:supplier|suppliers|seller|sellers|exporter|exporters|stockist)\s+of\b'
+    - '\b(?:available|for\s+sale|in\s+stock|ready\s+stock|offering)\b'
+    - '\bmonthly\s+(?:supply|production)\b'
+  buyer:
+    - '\bwe\s+(?:buy|purchase|import|accept|source)\b'
+    - '\b(?:buyer|buyers|purchaser|importer)s?\s+of\b'
+    - '\b(?:wanted|looking\s+for|in\s+need\s+of|requirement|required|we\s+need)\b'
+    - '\bbuying\b'
+
+colours:
+  - natural
+  - white
+  - black
+  - transparent
+  - clear
+  - milky
+  - mixed colou?r(?:s)?
+  - colou?red
+  - blue
+  - green
+  - grey
+  - gray
+  - yellow
+  - red
+
+# Generic domains never used for company matching
+generic_domains:
+  - gmail.com
+  - yahoo.com
+  - hotmail.com
+  - outlook.com
+  - live.com
+  - icloud.com
+  - qq.com
+  - 163.com
+  - 126.com
+  - sina.com
+  - rediffmail.com
+  - aol.com
+  - protonmail.com
+  - mail.ru
+  - alibaba.com
+  - made-in-china.com
+  - indiamart.com
+  - tradeindia.com
+  - exportersindia.com
+  - globalsources.com
+  - ec21.com
+  - tradekey.com
+  - linkedin.com
+  - facebook.com
+  - instagram.com
+  - twitter.com
+  - x.com
+  - youtube.com
+  - wikipedia.org
+  - google.com
+  - blogspot.com
+  - wordpress.com
+  - wixsite.com
+  - example.com

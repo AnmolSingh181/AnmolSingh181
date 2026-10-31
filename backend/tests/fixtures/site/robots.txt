@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /private
+Sitemap: https://fixture-polymers.example/sitemap.xml

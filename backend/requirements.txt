@@ -1,0 +1,24 @@
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+sqlalchemy==2.1.6
+psycopg[binary]==3.3.6
+alembic==1.20.1
+pydantic==2.13.5
+pydantic-settings>=2.6
+httpx==0.28.1
+beautifulsoup4==4.15.0
+lxml>=5.0
+rapidfuzz==3.14.6
+tldextract==5.4.0
+email-validator==2.3.0
+dnspython==2.9.1
+pyjwt>=2.9
+bcrypt>=4.2
+pyyaml>=6.0
+python-multipart>=0.0.12
+openpyxl>=3.1
+apscheduler==3.11.3
+openai>=1.60
+python-dotenv>=1.0
+# Optional: JS-rendered pages. Install browsers with `playwright install chromium`.
+# playwright>=1.48

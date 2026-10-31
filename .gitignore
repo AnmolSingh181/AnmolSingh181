@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+# Env / secrets
+.env
+.env.*
+!.env.example
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+# Uploads / local data
+uploads/
+*.log
