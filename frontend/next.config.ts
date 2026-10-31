@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+// The browser only talks to this Next.js app; /api/* is proxied to the FastAPI backend so no API keys
+// or backend secrets ever reach the client.
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -11,6 +14,9 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async rewrites() {
+    return [{ source: "/api/:path*", destination: `${BACKEND_URL}/:path*` }];
   },
 };
 

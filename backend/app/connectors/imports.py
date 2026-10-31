@@ -179,6 +179,11 @@ class CsvImportConnector(BaseConnector):
                 self.log(f"row {i + 2}: {exc}", "warning")
             if i % 100 == 99:
                 self.db.commit()
+        if kind == "shipments" and self.stats.created:
+            from app.services.alerts import create_alert
+
+            create_alert(self.db, "new_shipment", f"{self.stats.created} new shipment record(s) imported from {src.name}",
+                         entity_type="source", entity_id=src.key, payload={"created": self.stats.created})
         self.db.commit()
         return self.stats
 

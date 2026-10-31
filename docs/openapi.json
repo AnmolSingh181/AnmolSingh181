@@ -1,0 +1,5168 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Global Plastic Trading Intelligence API",
+  "description": "B2B intelligence for LDPE / LLDPE / HDPE (virgin, near-prime, off-grade, recycled). All records are traceable to their source; nothing is fabricated.",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/auth/login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/auth/users": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "List Users",
+    "operationId": "list_users_auth_users_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Create User",
+    "operationId": "create_user_auth_users_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/search/nl": {
+   "post": {
+    "tags": [
+     "search"
+    ],
+    "summary": "Nl Search",
+    "operationId": "nl_search_search_nl_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NLIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/privacy/requests": {
+   "get": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "List Privacy",
+    "operationId": "list_privacy_privacy_requests_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Submit Privacy Request",
+    "description": "Public endpoint (no auth) so data subjects can request opt-out, correction or deletion.",
+    "operationId": "submit_privacy_request_privacy_requests_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PrivacyIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/privacy/requests/{rid}/resolve": {
+   "post": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Resolve Privacy",
+    "operationId": "resolve_privacy_privacy_requests__rid__resolve_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "rid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Rid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResolveIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/dashboard": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Get Dashboard",
+    "operationId": "get_dashboard_dashboard_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/meta": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Meta",
+    "operationId": "meta_meta_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/countries/{code}": {
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update Country",
+    "operationId": "update_country_countries__code__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "code",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Code"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CountryPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/sources": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Sources",
+    "operationId": "list_sources_sources_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/sources/{source_id}": {
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update Source",
+    "operationId": "update_source_sources__source_id__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "source_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Source Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SourcePatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/sources/{key}/run": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Run Source",
+    "operationId": "run_source_sources__key__run_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "key",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RunIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/jobs": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Jobs",
+    "operationId": "list_jobs_jobs_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Source"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/jobs/{job_id}/retry": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Retry Job",
+    "operationId": "retry_job_jobs__job_id__retry_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/jobs/{job_id}/cancel": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Cancel Job",
+    "operationId": "cancel_job_jobs__job_id__cancel_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/imports": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Import File",
+    "description": "Upload a permitted CSV/XLSX export. kind = companies | shipments. origin_source = source key the export came from.",
+    "operationId": "import_file_imports_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_import_file_imports_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/duplicates": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Duplicates",
+    "operationId": "list_duplicates_duplicates_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "pending",
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/duplicates/{dup_id}/merge": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Merge Duplicate",
+    "operationId": "merge_duplicate_duplicates__dup_id__merge_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "dup_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Dup Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MergeIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/duplicates/{dup_id}/reject": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Reject Duplicate",
+    "operationId": "reject_duplicate_duplicates__dup_id__reject_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "dup_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Dup Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/settings/{key}": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Read Setting",
+    "operationId": "read_setting_settings__key__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "key",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Write Setting",
+    "operationId": "write_setting_settings__key__put",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "key",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "Value"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/rescore": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Rescore Everything",
+    "operationId": "rescore_everything_admin_rescore_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/quality": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Quality",
+    "operationId": "quality_quality_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/quality/review-sample": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Review Sample",
+    "description": "Random auto-classified material rows for manual accuracy review.",
+    "operationId": "review_sample_quality_review_sample_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "n",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 20,
+       "title": "N"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/alerts": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Alerts",
+    "operationId": "list_alerts_alerts_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "unread_only",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Unread Only"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/alerts/read-all": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Read All",
+    "operationId": "read_all_alerts_read_all_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/companies": {
+   "get": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "List Companies",
+    "operationId": "list_companies_companies_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Country"
+      }
+     },
+     {
+      "name": "city",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "City"
+      }
+     },
+     {
+      "name": "polymer",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Polymer"
+      }
+     },
+     {
+      "name": "polymer_match",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "any",
+       "title": "Polymer Match"
+      }
+     },
+     {
+      "name": "grade",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Grade"
+      }
+     },
+     {
+      "name": "application",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Application"
+      }
+     },
+     {
+      "name": "relationship",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Relationship"
+      }
+     },
+     {
+      "name": "company_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Company Type"
+      }
+     },
+     {
+      "name": "trade_role",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Trade Role"
+      }
+     },
+     {
+      "name": "has_contacts",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Contacts"
+      }
+     },
+     {
+      "name": "has_email",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Email"
+      }
+     },
+     {
+      "name": "has_phone",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Phone"
+      }
+     },
+     {
+      "name": "has_website",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Website"
+      }
+     },
+     {
+      "name": "has_decision_maker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Decision Maker"
+      }
+     },
+     {
+      "name": "contact_title",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Contact Title"
+      }
+     },
+     {
+      "name": "contact_verification",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Contact Verification"
+      }
+     },
+     {
+      "name": "min_score",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Min Score"
+      }
+     },
+     {
+      "name": "max_score",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Max Score"
+      }
+     },
+     {
+      "name": "tier",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Tier"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Source"
+      }
+     },
+     {
+      "name": "sort",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "score",
+       "title": "Sort"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "desc",
+       "title": "Order"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 25,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Create Company",
+    "operationId": "create_company_companies_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ManualCompany"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/search": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Search Body",
+    "operationId": "search_body_companies_search_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CompanyFilters"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/companies/export.csv": {
+   "get": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Export Companies",
+    "operationId": "export_companies_companies_export_csv_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Country"
+      }
+     },
+     {
+      "name": "city",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "City"
+      }
+     },
+     {
+      "name": "polymer",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Polymer"
+      }
+     },
+     {
+      "name": "polymer_match",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "any",
+       "title": "Polymer Match"
+      }
+     },
+     {
+      "name": "grade",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Grade"
+      }
+     },
+     {
+      "name": "application",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Application"
+      }
+     },
+     {
+      "name": "relationship",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Relationship"
+      }
+     },
+     {
+      "name": "company_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Company Type"
+      }
+     },
+     {
+      "name": "trade_role",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Trade Role"
+      }
+     },
+     {
+      "name": "has_contacts",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Contacts"
+      }
+     },
+     {
+      "name": "has_email",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Email"
+      }
+     },
+     {
+      "name": "has_phone",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Phone"
+      }
+     },
+     {
+      "name": "has_website",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Website"
+      }
+     },
+     {
+      "name": "has_decision_maker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Has Decision Maker"
+      }
+     },
+     {
+      "name": "contact_title",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Contact Title"
+      }
+     },
+     {
+      "name": "contact_verification",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Contact Verification"
+      }
+     },
+     {
+      "name": "min_score",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Min Score"
+      }
+     },
+     {
+      "name": "max_score",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Max Score"
+      }
+     },
+     {
+      "name": "tier",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Tier"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Source"
+      }
+     },
+     {
+      "name": "sort",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "score",
+       "title": "Sort"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "default": "desc",
+       "title": "Order"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 25,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}": {
+   "get": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Get Company",
+    "operationId": "get_company_companies__cid__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Update Company",
+    "operationId": "update_company_companies__cid__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CompanyPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/notes": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Add Note",
+    "operationId": "add_note_companies__cid__notes_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NoteIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/materials": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Add Material",
+    "operationId": "add_material_companies__cid__materials_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MaterialIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/company-materials/{mid}/review": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Review Material",
+    "operationId": "review_material_company_materials__mid__review_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "mid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Mid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/classifications": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Set Classification",
+    "operationId": "set_classification_companies__cid__classifications_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ClassificationIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/recrawl": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Recrawl",
+    "operationId": "recrawl_companies__cid__recrawl_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/rescore": {
+   "post": {
+    "tags": [
+     "companies"
+    ],
+    "summary": "Rescore",
+    "operationId": "rescore_companies__cid__rescore_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/contacts": {
+   "get": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "List Contacts",
+    "operationId": "list_contacts_contacts_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "name": "company_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Company Id"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Country"
+      }
+     },
+     {
+      "name": "title",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Title"
+      }
+     },
+     {
+      "name": "department",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Department"
+      }
+     },
+     {
+      "name": "material",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Material"
+      }
+     },
+     {
+      "name": "verification",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Verification"
+      }
+     },
+     {
+      "name": "contact_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Contact Type"
+      }
+     },
+     {
+      "name": "decision_role",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Decision Role"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/companies/{cid}/contacts": {
+   "post": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "Add Contact",
+    "operationId": "add_contact_companies__cid__contacts_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "cid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ContactIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/contacts/{contact_id}": {
+   "patch": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "Update Contact",
+    "operationId": "update_contact_contacts__contact_id__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "contact_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Contact Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ContactPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "Delete Contact",
+    "description": "Deletes personal data. With suppress=true the email/phone is hashed onto the suppression list so it is never re-collected.",
+    "operationId": "delete_contact_contacts__contact_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "contact_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Contact Id"
+      }
+     },
+     {
+      "name": "suppress",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": true,
+       "title": "Suppress"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/contacts/{contact_id}/verify": {
+   "post": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "Run Verification",
+    "operationId": "run_verification_contacts__contact_id__verify_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "contact_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Contact Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/contacts/{contact_id}/manual-verify": {
+   "post": {
+    "tags": [
+     "contacts"
+    ],
+    "summary": "Manual Verify",
+    "operationId": "manual_verify_contacts__contact_id__manual_verify_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "contact_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Contact Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ManualVerify"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/shipments": {
+   "get": {
+    "tags": [
+     "trade"
+    ],
+    "summary": "List Shipments",
+    "operationId": "list_shipments_shipments_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "importer",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Importer"
+      }
+     },
+     {
+      "name": "exporter",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Exporter"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Country"
+      }
+     },
+     {
+      "name": "material",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Material"
+      }
+     },
+     {
+      "name": "hs_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Hs Code"
+      }
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date From"
+      }
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date To"
+      }
+     },
+     {
+      "name": "min_qty",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Min Qty"
+      }
+     },
+     {
+      "name": "max_qty",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Max Qty"
+      }
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/shipments/relationships": {
+   "get": {
+    "tags": [
+     "trade"
+    ],
+    "summary": "Supplier Buyer Pairs",
+    "description": "Supplier -> buyer relationships aggregated from shipment records.",
+    "operationId": "supplier_buyer_pairs_shipments_relationships_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Country"
+      }
+     },
+     {
+      "name": "material",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Material"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/trade-stats": {
+   "get": {
+    "tags": [
+     "trade"
+    ],
+    "summary": "Trade Stats",
+    "operationId": "trade_stats_trade_stats_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "reporter",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Reporter"
+      }
+     },
+     {
+      "name": "hs_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Hs Code"
+      }
+     },
+     {
+      "name": "flow",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Flow"
+      }
+     },
+     {
+      "name": "partner",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Partner"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/leads": {
+   "get": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "List Leads",
+    "operationId": "list_leads_leads_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "stage",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Stage"
+      }
+     },
+     {
+      "name": "priority",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Priority"
+      }
+     },
+     {
+      "name": "lead_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Lead Type"
+      }
+     },
+     {
+      "name": "material",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Material"
+      }
+     },
+     {
+      "name": "due",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Due"
+      }
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "Create Lead",
+    "operationId": "create_lead_leads_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LeadIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/leads/{lead_id}": {
+   "patch": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "Update Lead",
+    "operationId": "update_lead_leads__lead_id__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "lead_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Lead Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LeadPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "Delete Lead",
+    "operationId": "delete_lead_leads__lead_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "lead_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Lead Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/leads/{lead_id}/activities": {
+   "post": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "Add Activity",
+    "operationId": "add_activity_leads__lead_id__activities_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "lead_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Lead Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ActivityIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/leads/export.csv": {
+   "get": {
+    "tags": [
+     "leads"
+    ],
+    "summary": "Export Leads",
+    "operationId": "export_leads_leads_export_csv_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "stage",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Stage"
+      }
+     },
+     {
+      "name": "priority",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Priority"
+      }
+     },
+     {
+      "name": "lead_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Lead Type"
+      }
+     },
+     {
+      "name": "material",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "default": [],
+       "title": "Material"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/health": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Health",
+    "operationId": "health_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ActivityIn": {
+    "properties": {
+     "activity_type": {
+      "type": "string",
+      "title": "Activity Type",
+      "default": "note"
+     },
+     "summary": {
+      "type": "string",
+      "title": "Summary"
+     },
+     "mark_contacted": {
+      "type": "boolean",
+      "title": "Mark Contacted",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "summary"
+    ],
+    "title": "ActivityIn"
+   },
+   "Body_import_file_imports_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "origin_source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Origin Source"
+     },
+     "mapping": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mapping"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file",
+     "kind"
+    ],
+    "title": "Body_import_file_imports_post"
+   },
+   "ClassificationIn": {
+    "properties": {
+     "category": {
+      "type": "string",
+      "title": "Category"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status",
+      "default": "confirmed"
+     },
+     "evidence": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evidence"
+     }
+    },
+    "type": "object",
+    "required": [
+     "category"
+    ],
+    "title": "ClassificationIn"
+   },
+   "CompanyFilters": {
+    "properties": {
+     "q": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Q"
+     },
+     "countries": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Countries"
+     },
+     "city": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "City"
+     },
+     "polymers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Polymers"
+     },
+     "polymer_match": {
+      "type": "string",
+      "enum": [
+       "any",
+       "all"
+      ],
+      "title": "Polymer Match",
+      "default": "any"
+     },
+     "grades": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Grades"
+     },
+     "applications": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Applications"
+     },
+     "relationships": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Relationships"
+     },
+     "company_types": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Company Types"
+     },
+     "trade_roles": {
+      "items": {
+       "type": "string",
+       "enum": [
+        "importer",
+        "exporter"
+       ]
+      },
+      "type": "array",
+      "title": "Trade Roles"
+     },
+     "has_contacts": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Contacts"
+     },
+     "has_email": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Email"
+     },
+     "has_phone": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Phone"
+     },
+     "has_website": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Website"
+     },
+     "has_decision_maker": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Decision Maker"
+     },
+     "contact_title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Contact Title"
+     },
+     "contact_verification": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Contact Verification"
+     },
+     "min_score": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Score"
+     },
+     "max_score": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Score"
+     },
+     "tiers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tiers"
+     },
+     "sources": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Sources"
+     },
+     "exclude_rejected": {
+      "type": "boolean",
+      "title": "Exclude Rejected",
+      "default": true
+     },
+     "sort": {
+      "type": "string",
+      "enum": [
+       "score",
+       "name",
+       "discovered",
+       "verified",
+       "country"
+      ],
+      "title": "Sort",
+      "default": "score"
+     },
+     "order": {
+      "type": "string",
+      "enum": [
+       "asc",
+       "desc"
+      ],
+      "title": "Order",
+      "default": "desc"
+     },
+     "page": {
+      "type": "integer",
+      "title": "Page",
+      "default": 1
+     },
+     "page_size": {
+      "type": "integer",
+      "title": "Page Size",
+      "default": 25
+     }
+    },
+    "type": "object",
+    "title": "CompanyFilters"
+   },
+   "CompanyPatch": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "country_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country Code"
+     },
+     "state": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "State"
+     },
+     "city": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "City"
+     },
+     "address": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Address"
+     },
+     "website": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Website"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "linkedin_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Linkedin Url"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "registration_number": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Registration Number"
+     },
+     "registration_authority": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Registration Authority"
+     },
+     "mark_verified": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mark Verified"
+     }
+    },
+    "type": "object",
+    "title": "CompanyPatch"
+   },
+   "ContactIn": {
+    "properties": {
+     "contact_type": {
+      "type": "string",
+      "title": "Contact Type",
+      "default": "individual"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "job_title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Title"
+     },
+     "department": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Department"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "linkedin_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Linkedin Url"
+     },
+     "evidence": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evidence"
+     },
+     "source_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Url"
+     }
+    },
+    "type": "object",
+    "title": "ContactIn"
+   },
+   "ContactPatch": {
+    "properties": {
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "job_title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Title"
+     },
+     "department": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Department"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "linkedin_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Linkedin Url"
+     },
+     "decision_role": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decision Role"
+     }
+    },
+    "type": "object",
+    "title": "ContactPatch"
+   },
+   "CountryPatch": {
+    "properties": {
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     }
+    },
+    "type": "object",
+    "required": [
+     "is_active"
+    ],
+    "title": "CountryPatch"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "LeadIn": {
+    "properties": {
+     "company_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Company Id"
+     },
+     "lead_type": {
+      "type": "string",
+      "title": "Lead Type",
+      "default": "unknown"
+     },
+     "stage": {
+      "type": "string",
+      "title": "Stage",
+      "default": "new"
+     },
+     "priority": {
+      "type": "string",
+      "title": "Priority",
+      "default": "medium"
+     },
+     "interested_materials": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Interested Materials",
+      "default": []
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "next_follow_up_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Follow Up At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "company_id"
+    ],
+    "title": "LeadIn"
+   },
+   "LeadPatch": {
+    "properties": {
+     "lead_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lead Type"
+     },
+     "stage": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stage"
+     },
+     "priority": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Priority"
+     },
+     "interested_materials": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interested Materials"
+     },
+     "communication_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Communication Status"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "last_contacted_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Contacted At"
+     },
+     "next_follow_up_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Follow Up At"
+     }
+    },
+    "type": "object",
+    "title": "LeadPatch"
+   },
+   "LoginIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginIn"
+   },
+   "ManualCompany": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "country": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Country"
+     },
+     "city": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "City"
+     },
+     "address": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Address"
+     },
+     "website": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Website"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "linkedin_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Linkedin Url"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "company_types": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Company Types",
+      "default": []
+     },
+     "evidence": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evidence"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "ManualCompany"
+   },
+   "ManualVerify": {
+    "properties": {
+     "result": {
+      "type": "string",
+      "title": "Result",
+      "default": "pass"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "confirm_decision_maker": {
+      "type": "boolean",
+      "title": "Confirm Decision Maker",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "ManualVerify"
+   },
+   "MaterialIn": {
+    "properties": {
+     "polymer": {
+      "type": "string",
+      "title": "Polymer"
+     },
+     "grade_category": {
+      "type": "string",
+      "title": "Grade Category",
+      "default": "unknown"
+     },
+     "application": {
+      "type": "string",
+      "title": "Application",
+      "default": "unknown"
+     },
+     "relationship": {
+      "type": "string",
+      "title": "Relationship",
+      "default": "unknown"
+     },
+     "form": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Form"
+     },
+     "evidence": {
+      "type": "string",
+      "title": "Evidence"
+     },
+     "mfi": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mfi"
+     },
+     "density": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Density"
+     },
+     "grade_number": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade Number"
+     },
+     "brand": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Brand"
+     },
+     "colour": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Colour"
+     },
+     "available_quantity": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Available Quantity"
+     },
+     "required_quantity": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Required Quantity"
+     }
+    },
+    "type": "object",
+    "required": [
+     "polymer",
+     "evidence"
+    ],
+    "title": "MaterialIn"
+   },
+   "MergeIn": {
+    "properties": {
+     "master_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Master Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "master_id"
+    ],
+    "title": "MergeIn"
+   },
+   "NLIn": {
+    "properties": {
+     "query": {
+      "type": "string",
+      "title": "Query"
+     },
+     "page": {
+      "type": "integer",
+      "title": "Page",
+      "default": 1
+     },
+     "page_size": {
+      "type": "integer",
+      "title": "Page Size",
+      "default": 25
+     },
+     "use_ai": {
+      "type": "boolean",
+      "title": "Use Ai",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "query"
+    ],
+    "title": "NLIn"
+   },
+   "NoteIn": {
+    "properties": {
+     "body": {
+      "type": "string",
+      "title": "Body"
+     }
+    },
+    "type": "object",
+    "required": [
+     "body"
+    ],
+    "title": "NoteIn"
+   },
+   "PrivacyIn": {
+    "properties": {
+     "request_type": {
+      "type": "string",
+      "title": "Request Type"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "details": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Details"
+     }
+    },
+    "type": "object",
+    "required": [
+     "request_type",
+     "email"
+    ],
+    "title": "PrivacyIn"
+   },
+   "ResolveIn": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status",
+      "default": "completed"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "apply_deletion": {
+      "type": "boolean",
+      "title": "Apply Deletion",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "ResolveIn"
+   },
+   "ReviewIn": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "polymer_correct": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Polymer Correct"
+     },
+     "grade_correct": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade Correct"
+     },
+     "relationship_correct": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Relationship Correct"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "ReviewIn"
+   },
+   "RunIn": {
+    "properties": {
+     "job_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Type"
+     },
+     "params": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Params",
+      "default": {}
+     },
+     "run_now": {
+      "type": "boolean",
+      "title": "Run Now",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "RunIn"
+   },
+   "SourcePatch": {
+    "properties": {
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "config": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Config"
+     },
+     "confirm_terms": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Confirm Terms"
+     },
+     "terms_note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Terms Note"
+     },
+     "refresh_interval_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Refresh Interval Days"
+     }
+    },
+    "type": "object",
+    "title": "SourcePatch"
+   },
+   "UserIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Password"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role",
+      "default": "analyst"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email"
+    ],
+    "title": "UserIn"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  },
+  "securitySchemes": {
+   "HTTPBearer": {
+    "type": "http",
+    "scheme": "bearer"
+   }
+  }
+ }
+}

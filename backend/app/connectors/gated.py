@@ -83,6 +83,11 @@ class TradeApiConnector(BaseConnector):
             except Exception as exc:
                 self.stats.failed += 1
                 self.log(f"item failed: {exc}", "warning")
+        if self.stats.created:
+            from app.services.alerts import create_alert
+
+            create_alert(self.db, "new_shipment", f"{self.stats.created} new shipment record(s) from {self.source.name}",
+                         entity_type="source", entity_id=self.key)
         self.db.commit()
         return self.stats
 

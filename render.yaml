@@ -1,0 +1,25 @@
+# Render blueprint: API (web) + scheduler/worker. Database: Supabase (set DATABASE_URL in the dashboard).
+services:
+  - type: web
+    name: plastic-intel-api
+    runtime: docker
+    rootDir: backend
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - { key: APP_ENV, value: production }
+      - { key: DATABASE_URL, sync: false }
+      - { key: JWT_SECRET, generateValue: true }
+      - { key: CORS_ORIGINS, sync: false }
+      - { key: OPENAI_API_KEY, sync: false }
+  - type: worker
+    name: plastic-intel-worker
+    runtime: docker
+    rootDir: backend
+    plan: starter
+    dockerCommand: python -m app.workers.scheduler
+    envVars:
+      - { key: APP_ENV, value: production }
+      - { key: DATABASE_URL, sync: false }
+      - { key: JWT_SECRET, sync: false }
+      - { key: OPENAI_API_KEY, sync: false }

@@ -10,6 +10,7 @@ Name similarity on its own NEVER merges - it only creates a DuplicateCandidate f
 from __future__ import annotations
 
 import logging
+import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -126,6 +127,8 @@ def find_match(db: Session, cand: CompanyCandidate, allow_unique_exact_name: boo
             for cid, s in rows:
                 if s >= 0.55 and cid not in possible:
                     c = db.get(Company, cid)
+                    if set(re.findall(r"\d+", nn)) != set(re.findall(r"\d+", c.normalized_name)):
+                        continue  # "Plant 1" vs "Plant 2": different numbers are different entities
                     sim = name_similarity(nn, c.normalized_name)
                     if sim >= 80:
                         add_possible(c, round(min(0.65, s), 3), f"similar name (trigram {s:.2f}, token {sim:.0f})")

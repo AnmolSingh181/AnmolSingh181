@@ -94,10 +94,19 @@ def nl_search(body: NLIn, db: Session = Depends(get_db), user: User = Depends(cu
                               "verification_status": x.verification_status, "source_url": x.source_url}
                              for x in sorted([x for x in c.contacts if not x.is_opted_out and x.verification_status != "invalid"],
                                              key=lambda x: (x.contact_type != "individual", x.decision_role == "unknown_authority"))[:3]]
+        from app.services.search import GRADE_EXPAND, REL_EXPAND
+
+        grades = {x for g in filters.grades for x in GRADE_EXPAND.get(g, [g])}
+        rels = {x for r in filters.relationships for x in REL_EXPAND.get(r, [r])}
+
+        def rank(m):  # evidence that matches more of the question first
+            return -((not filters.polymers or m.material.code in filters.polymers) * 4
+                     + (not grades or m.grade_category in grades) * 2 + (not rels or m.relationship_type in rels))
+
+        mats = sorted([m for m in c.materials if m.is_current and m.review_status != "rejected"
+                       and (not filters.polymers or m.material.code in filters.polymers)], key=rank)
         s["evidence"] = [{"polymer": m.material.code, "grade": m.grade_category, "relationship": m.relationship_type,
-                          "text": (m.evidence_text or "")[:300], "url": m.evidence_url}
-                         for m in c.materials if m.is_current and m.review_status != "rejected"
-                         and (not filters.polymers or m.material.code in filters.polymers)][:3]
+                          "text": (m.evidence_text or "")[:300], "url": m.evidence_url} for m in mats[:3]]
         items.append(s)
     log_activity(db, user, "nl_search", details={"query": body.query, "parser": parser, "results": total})
     db.commit()

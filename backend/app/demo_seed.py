@@ -41,9 +41,9 @@ def seed_demo(db, n_per_country: int = 6, seed: int = 42):
     rnd = random.Random(seed)
     src = db.scalar(select(Source).where(Source.key == "demo"))
     made = []
-    for cc, (city, prefix) in COUNTRIES.items():
+    for ci, (cc, (city, prefix)) in enumerate(COUNTRIES.items()):
         for i in range(n_per_country):
-            label, ctype, text = PROFILES[(i + len(made)) % len(PROFILES)]
+            label, ctype, text = PROFILES[(i + ci) % len(PROFILES)]
             name = f"[DEMO] {city.split()[0]} {label} {i + 1}"
             dom = f"demo-{cc.lower()}-{i + 1}-{label.split()[0].lower()}.example"
             contacts = [ContactInput(email=f"info@{dom}", evidence="synthetic demo record"),
