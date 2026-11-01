@@ -5,6 +5,19 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
+  echo "Docker is not available in this environment."
+  if [ -n "${CODESPACES:-}" ]; then
+    echo "Fix (GitHub Codespaces):"
+    echo "  1) run:  git pull"
+    echo "  2) press Ctrl+Shift+P, type 'Rebuild Container', choose 'Codespaces: Rebuild Container'"
+    echo "  3) after it reopens, run:  bash scripts/start.sh"
+  else
+    echo "Install Docker Desktop (https://www.docker.com/products/docker-desktop), start it, then run this script again."
+  fi
+  exit 1
+fi
+
 if [ ! -f backend/.env ]; then
   cp backend/.env.example backend/.env
   secret=$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))')

@@ -1,11 +1,9 @@
 {
   // GitHub Codespaces: run the whole platform in the browser (no local install).
+  // Uses GitHub's standard Codespaces image, which already includes Docker.
   // After the codespace opens, run in the terminal:  bash scripts/start.sh
   "name": "Plastic Trading Intelligence",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "hostRequirements": { "cpus": 2, "memory": "8gb" },
   "forwardPorts": [3000, 8000],
   "portsAttributes": {
