@@ -47,7 +47,8 @@ if [ "${make_admin,,}" = "y" ]; then
   email="${ADMIN_EMAIL:-}"; pw="${ADMIN_PASSWORD:-}"
   if [ -z "$email" ]; then read -rp "Your login email: " email || { echo "No email given"; exit 1; }; fi
   while [ -z "$pw" ] || [ ${#pw} -lt 10 ]; do
-    read -rsp "Choose a password (at least 10 characters): " pw || { echo "No password given"; exit 1; }; echo
+    [ -n "$pw" ] && echo "That password has only ${#pw} characters - please use at least 10."
+    read -rp "Choose a password (at least 10 characters, visible as you type): " pw || { echo "No password given"; exit 1; }
   done
   docker compose exec -T backend python -m app.cli create-admin "$email" "$pw" </dev/null
 fi
