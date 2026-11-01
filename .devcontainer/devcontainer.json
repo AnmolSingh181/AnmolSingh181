@@ -1,0 +1,16 @@
+{
+  // GitHub Codespaces: run the whole platform in the browser (no local install).
+  // After the codespace opens, run in the terminal:  bash scripts/start.sh
+  "name": "Plastic Trading Intelligence",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "hostRequirements": { "cpus": 2, "memory": "8gb" },
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": { "label": "Plastic Intel (web app)", "onAutoForward": "openBrowser" },
+    "8000": { "label": "API (Swagger at /docs)", "onAutoForward": "silent" }
+  },
+  "postAttachCommand": "echo; echo '>>> To start the platform run:  bash scripts/start.sh'; echo"
+}

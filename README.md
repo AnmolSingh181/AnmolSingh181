@@ -17,6 +17,20 @@ source URL, collection time and the verbatim evidence it was derived from. Unkno
 | Intelligence | Rule-based dictionary classifier + evidence-validated OpenAI structured extraction |
 | Jobs | DB-backed queue (`FOR UPDATE SKIP LOCKED`) + APScheduler refresh workflows; optional n8n webhook alerts |
 
+## Run it in your browser (GitHub Codespaces, nothing to install)
+
+1. On GitHub open the repository, switch to the branch with this code, click **Code → Codespaces → Create codespace**.
+2. When the editor opens, run in its terminal:
+   ```bash
+   bash scripts/start.sh
+   ```
+   It creates the settings file, starts database + API + worker + web app with Docker (5–10 min the first time),
+   asks for your login email/password and prints the link to open (also under the **PORTS** tab, port 3000).
+3. The codespace sleeps after ~30 minutes idle; data is kept. Reopen it from github.com/codespaces and run
+   `bash scripts/start.sh` again. Codespaces includes free monthly usage for personal accounts; heavier use is billed by GitHub.
+
+For a permanent, always-on site use the cloud deployment in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
 ## Quick start (local)
 
 Requirements: Python 3.11+, Node 20+, PostgreSQL 14+.

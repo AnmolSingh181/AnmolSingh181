@@ -10,6 +10,11 @@ Recommended low-cost production setup (roughly ₹3,000–8,000/month depending 
 | Web UI | **Vercel** (`frontend/`) | set `BACKEND_URL` to the Render API URL |
 | Automation | **n8n** (optional, self-hosted) | receives alert webhooks |
 
+## Try it in the browser first (GitHub Codespaces)
+No install: **Code → Codespaces → Create codespace** on the repo, then `bash scripts/start.sh` in the terminal
+(`.devcontainer/devcontainer.json` provides Docker). The forwarded port-3000 URL is private to your GitHub account by
+default. Good for evaluation and personal use; not an always-on production host.
+
 ## 1. Database (Supabase)
 1. Create a project; copy the **Session pooler** connection string (port 5432).
 2. Set `DATABASE_URL=postgresql+psycopg://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`.
