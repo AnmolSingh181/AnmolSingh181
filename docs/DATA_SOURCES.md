@@ -8,6 +8,7 @@ interfaces but **were not executed against the live services**; run them once af
 | Source | Status | Method | What is needed / notes |
 |---|---|---|---|
 | Company website crawler | **Active** | robots.txt-respecting crawl of home/about/products/contact pages + sitemap | Set `CRAWLER_USER_AGENT` with your contact. Optional Playwright for JS sites |
+| Wikidata: PE & petrochemical producers | **Active** (no key) | Official Wikidata Query Service (CC0 open data): companies in active markets producing polyethylene/HDPE/LDPE/LLDPE or in the petrochemical industry; their official websites are queued for crawling | Runs automatically ~1 min after the worker starts, then monthly; also "Start automatic discovery" on the empty dashboard. Covers mainly larger manufacturers; traders/distributors need search discovery. Unverified live in build env |
 | CSV / Excel import | **Active** | Upload permitted exports; auto column mapping | Use for ImportYeti, Volza, Panjiva, TradeData.Pro, Kompass, directory and trade-fair lists |
 | Manual entry | **Active** | UI forms | Entries are attributed to the user and marked confirmed |
 | US Census International Trade API | **Active** (key optional) | Official API, HS 390110/390120/390140/391510, monthly, imports & exports by partner | Country-level only (no company names). Unverified live in build env |

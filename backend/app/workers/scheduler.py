@@ -29,7 +29,7 @@ def _has_open_job(db, source_key: str, job_type: str) -> bool:
         ScrapeJob.source_id == src.id, ScrapeJob.job_type == job_type, ScrapeJob.status.in_(["queued", "running"]))))
 
 
-def enqueue_if_enabled(source_key: str, job_type: str, params: dict | None = None):
+def enqueue_if_enabled(source_key: str, job_type: str, params: dict | None = None, min_interval_days: float | None = None):
     db = SessionLocal()
     try:
         src = db.scalar(select(Source).where(Source.key == source_key))
@@ -37,6 +37,9 @@ def enqueue_if_enabled(source_key: str, job_type: str, params: dict | None = Non
             return
         if _has_open_job(db, source_key, job_type):
             return
+        if min_interval_days and src.last_success_at and \
+                src.last_success_at > datetime.now(timezone.utc) - timedelta(days=min_interval_days):
+            return  # ran recently (e.g. worker restarted) - skip
         enqueue(db, source_key, job_type, params or {}, priority=120)
         db.commit()
         log.info("scheduled %s/%s", source_key, job_type)
@@ -45,7 +48,12 @@ def enqueue_if_enabled(source_key: str, job_type: str, params: dict | None = Non
 
 
 def weekly_discovery():
-    enqueue_if_enabled("web_search", "discover", {"max_queries": 20})
+    enqueue_if_enabled("web_search", "discover", {"max_queries": 20}, min_interval_days=6)
+
+
+def producer_discovery():
+    """Key-free: Wikidata PE/petrochemical producers -> queue their websites for crawling."""
+    enqueue_if_enabled("wikidata", "discover_producers", {}, min_interval_days=25)
 
 
 def website_refresh():
@@ -95,6 +103,8 @@ def build_scheduler() -> BackgroundScheduler:
     s = BackgroundScheduler(timezone="UTC")
     s.add_job(weekly_discovery, "interval", days=sched_cfg.get("discovery_days", 7), id="discovery",
               next_run_time=datetime.now(timezone.utc) + timedelta(minutes=5))
+    s.add_job(producer_discovery, "interval", days=1, id="producers",
+              next_run_time=datetime.now(timezone.utc) + timedelta(minutes=1))
     s.add_job(website_refresh, "interval", days=1, id="website_refresh")  # daily sweep of records older than N days
     s.add_job(trade_refresh, "interval", days=sched_cfg.get("trade_days", 7), id="trade")
     s.add_job(contact_refresh, "interval", days=sched_cfg.get("contact_days", 30), id="contacts")

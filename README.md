@@ -72,6 +72,8 @@ Or everything with Docker: `docker compose up --build` (see [docs/DEPLOYMENT.md]
 ### First data
 
 The database starts empty on purpose. To start filling it:
+0. **Automatic (no key):** the worker pulls polyethylene/petrochemical producers in your active markets from Wikidata
+   about a minute after it starts and crawls their websites (or click **Start automatic discovery** on the dashboard).
 1. **Data sources → Import**: upload a permitted CSV/XLSX export (ImportYeti/Volza/Panjiva/TradeData.Pro shipments,
    Kompass/directory/trade-fair company lists, your own CRM).
 2. **Data sources → Crawl a company website**: paste any company URL.

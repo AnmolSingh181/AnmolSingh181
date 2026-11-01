@@ -1,10 +1,13 @@
 "use client";
+import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarList, Empty, ErrorNote, PageHeader, ScoreBadge, StatTile } from "@/components/common";
 import { countryName, useApp, useFetch } from "@/components/providers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import { fmtDate, label } from "@/lib/utils";
 
 type Dash = {
@@ -18,6 +21,37 @@ type Dash = {
   recent_shipments: { id: number; date: string | null; importer: string | null; exporter: string | null; hs_code: string | null; material: string | null; importer_country: string | null; exporter_country: string | null; importer_company_id: string | null; exporter_company_id: string | null }[];
   collection: { jobs_last_7_days: Record<string, number>; sources_by_status: Record<string, number>; last_successful_collection: string | null; queued: number; running: number };
 };
+
+function DiscoverButton() {
+  const [msg, setMsg] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const start = async () => {
+    setBusy(true);
+    const notes: string[] = [];
+    try {
+      await api("/sources/wikidata/run", { method: "POST", body: JSON.stringify({}) });
+      notes.push("Producer discovery queued.");
+    } catch (x) { notes.push(`Producer discovery: ${(x as Error).message}`); }
+    try {
+      const src = await api<{ sources: { key: string; readiness: { ready: boolean } }[] }>("/sources");
+      if (src.sources.find((x) => x.key === "web_search")?.readiness.ready) {
+        await api("/sources/web_search/run", { method: "POST", body: JSON.stringify({}) });
+        notes.push("Search discovery of traders, distributors and recyclers queued.");
+      } else {
+        notes.push("Add a search API key to also discover traders, distributors and recyclers (see Data sources).");
+      }
+    } catch (x) { notes.push(`Search discovery: ${(x as Error).message}`); }
+    notes.push("Companies appear over the next minutes as websites are crawled; refresh this page.");
+    setMsg(notes.join(" "));
+    setBusy(false);
+  };
+  return (
+    <>
+      <Button onClick={start} disabled={busy}>{busy ? "Starting…" : "Start automatic discovery"}</Button>
+      {msg && <p className="max-w-lg text-xs">{msg}</p>}
+    </>
+  );
+}
 
 export default function Dashboard() {
   const { meta } = useApp();
@@ -45,8 +79,11 @@ export default function Dashboard() {
 
       {data && t?.companies === 0 && (
         <div className="mt-5"><Empty title="No companies collected yet">
-          Start from <Link className="text-primary underline" href="/sources">Data sources</Link>: import a permitted CSV export, crawl a company
-          website, or add a search API key to enable automated discovery.
+          <p>Automatic discovery pulls polyethylene and petrochemical producers in your active markets from Wikidata
+            (open data, no key needed) and their websites are crawled. With a search API key, traders, distributors and recyclers are
+            discovered too.</p>
+          <div className="mt-3 flex flex-col items-center gap-2"><DiscoverButton /></div>
+          <p className="mt-3">You can also import a permitted CSV export or crawl any website from <Link className="text-primary underline" href="/sources">Data sources</Link>.</p>
         </Empty></div>
       )}
 

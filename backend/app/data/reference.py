@@ -103,6 +103,12 @@ SOURCES = [
          base_url=None, status="active", requires_credentials=False, credential_env_vars=[], refresh_interval_days=45,
          terms_notes="Respects robots.txt, rate-limited (CRAWLER_MIN_DELAY_SECONDS), identifies itself via CRAWLER_USER_AGENT, "
                      "stops on CAPTCHA / login / anti-bot challenge pages. Only public business pages are fetched."),
+    dict(key="wikidata", name="Wikidata: PE & petrochemical producers (open data)", source_type="directory",
+         access_method="api", base_url="https://www.wikidata.org/", status="active", requires_credentials=False,
+         credential_env_vars=[], refresh_interval_days=30,
+         terms_notes="CC0 open data via the official Wikidata Query Service (identifying User-Agent, rate-limited). "
+                     "Finds polyethylene / petrochemical producers in active markets and queues their official websites "
+                     "for crawling. No key needed."),
     # --- trade databases
     dict(key="importyeti", name="ImportYeti", source_type="trade_database", access_method="export_import",
          base_url="https://www.importyeti.com/", status="manual_only", requires_credentials=True,

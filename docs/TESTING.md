@@ -17,7 +17,7 @@ Fixtures in `tests/fixtures/` are **synthetic** (fictional names, `.example` dom
 | `test_pipeline.py` | full website crawl through a mock transport (robots.txt honoured, sitemap, JSON-LD, contacts, specs, prices, raw records, idempotent re-crawl), shipment CSV import (HS/description inference, party resolution, idempotency), company import merging with crawled record, failed jobs isolated (`NotConfigured`, `TermsNotConfirmed`), suppression list |
 | `test_scoring_search_api.py` | score components and explanations, natural-language parser on the five example queries, API flow (create → filter → review → contact → lead → exports → NL search → dashboard → source gating), privacy opt-out, auth required |
 
-Status at the time of writing: **28 passed**.
+Status at the time of writing: **31 passed** (incl. `test_wikidata.py`: query, grouping, ingestion, crawl queueing, idempotency).
 
 ## Frontend checks
 ```bash

@@ -12,6 +12,7 @@ _Last updated: 2026-10-31_
 | 1/4 | Next.js UI: dashboard, discovery, profile, AI search, contacts, trade, CRM, sources, quality, settings, privacy | `frontend/src/app/` |
 | 2 | Connector framework, polite HTTP client, raw storage | `backend/app/connectors/base.py`, `services/http.py` |
 | 2 | Website crawler, search-API discovery, US Census, UN Comtrade, CSV/XLSX import | `backend/app/connectors/` |
+| 2 | Key-free producer discovery from Wikidata (auto-scheduled) | `connectors/wikidata.py` |
 | 2 | Gated connectors: ImportYeti/Volza/Panjiva/TradeData.Pro API, directories, Kompass, Apollo | `connectors/gated.py` |
 | 3 | Rule classifier + YAML dictionary; OpenAI extraction with evidence validation | `services/classifier.py`, `services/ai_classifier.py` |
 | 3 | Entity resolution, duplicate review, merge | `services/dedupe.py` |
@@ -19,7 +20,7 @@ _Last updated: 2026-10-31_
 | 3 | Configurable explainable lead scoring | `services/scoring.py` |
 | 4 | Combined search filters, NL query parsing | `services/search.py`, `services/nl_search.py` |
 | 5 | Job queue (SKIP LOCKED, retries, isolation), scheduler, alerts + webhook | `workers/`, `services/alerts.py` |
-| 6 | 28 backend tests, Playwright UI walkthrough, acceptance metrics endpoint | `backend/tests/`, `services/metrics.py` |
+| 6 | 31 backend tests, Playwright UI walkthrough, acceptance metrics endpoint | `backend/tests/`, `services/metrics.py` |
 
 ## Pending / requires owner action
 - Provide credentials: search API (Brave/Serper), OpenAI (optional), Apollo, ZeroBounce, trade-data contracts.
