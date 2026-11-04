@@ -25,7 +25,7 @@ interfaces but **were not executed against the live services**; run them once af
 | Plasticker | Terms review required | as above | German marketplace (PE-LD / PE-LLD / PE-HD notation supported) |
 | Recycled Plastics Markets Database | Terms review required | as above | North American recycled-plastics buyers |
 | EPDA | Terms review required | as above | European distributor members |
-| Apollo.io | Awaiting credentials | Official people-search API | Contacts stored as *likely* decision-makers (title-based); emails only if returned by your plan. Verify endpoint in `sources.config.url` against current docs |
+| Apollo.io | Awaiting credentials | People API Search (`/api/v1/mixed_people/api_search`, no credits; results masked) + People Enrichment (`/api/v1/people/match`, uses credits) | `APOLLO_API_KEY` created with **Set as master key** (or with those two endpoints). Run params `limit` (companies) and `max_enrich` (credit cap per run, default 25); each person is enriched at most once. Contacts are stored as *likely* decision-makers (title-based). Endpoints overridable via `sources.config.search_url` / `enrich_url`. Unverified live in build env |
 | LinkedIn | Manual only | — | Scraping prohibited. Only URLs published on company sites or added by users |
 | ZeroBounce | Awaiting credentials | Email verification API | The only path to `email_verified` status |
 | OpenAI | Awaiting credentials | Structured extraction (`OPENAI_MODEL`, default gpt-5-mini) | Optional; rules work without it. Budget cap `AI_MONTHLY_BUDGET_USD` |

@@ -197,9 +197,18 @@ class KompassConnector(DirectoryConnector):
 
 
 class ApolloConnector(BaseConnector):
+    """Decision-maker discovery through the official Apollo API.
+
+    1. People API Search (no credits): people at the company's domain with buying/selling titles. Apollo returns
+       these partly masked (no email, shortened last name).
+    2. People Enrichment (uses Apollo credits): reveals name, email and LinkedIn for those people. Capped per run with
+       params.max_enrich (default 25); a person is never enriched twice (tracked via raw records).
+    Endpoints can be overridden in sources.config (search_url, enrich_url) if Apollo changes them.
+    """
     key = "apollo"
     job_types = ("enrich_contacts",)
-    DEFAULT_URL = "https://api.apollo.io/api/v1/mixed_people/search"
+    SEARCH_URL = "https://api.apollo.io/api/v1/mixed_people/api_search"
+    ENRICH_URL = "https://api.apollo.io/api/v1/people/match"
     TITLES = ["procurement manager", "purchasing manager", "purchase manager", "raw material buyer", "purchase director",
               "sales manager", "export manager", "import manager", "commercial director", "managing director",
               "business development manager"]
@@ -207,50 +216,99 @@ class ApolloConnector(BaseConnector):
     def status(self):
         if not get_settings().apollo_api_key:
             return {"ready": False, "message": "Awaiting APOLLO_API_KEY."}
-        return {"ready": True, "message": "configured (verify endpoint in sources.config.url against current Apollo docs)"}
+        return {"ready": True, "message": "configured"}
+
+    def _post(self, client, url, body):
+        r = client.api("POST", url, json=body, headers={"X-Api-Key": get_settings().apollo_api_key,
+                                                          "Content-Type": "application/json", "Cache-Control": "no-cache"})
+        if r.status_code in (401, 403):
+            raise NotConfigured(
+                f"Apollo refused the key ({r.status_code}: {r.text[:200]}). Create the key with 'Set as master key' "
+                "(or grant the People API Search and People Enrichment endpoints) and check your plan includes API access.")
+        if r.status_code == 429:
+            raise RuntimeError("Apollo rate limit / credit limit reached (429); will retry later")
+        r.raise_for_status()
+        return r.json()
+
+    @staticmethod
+    def _clean_email(email):
+        if not email or "not_unlocked" in email or "domain.com" in email or "@" not in email:
+            return None
+        return email
 
     def run(self, job_type: str, params: dict) -> JobStats:
+        from app.models import Contact, RawRecord
+
         if not get_settings().apollo_api_key:
             raise NotConfigured("Awaiting APOLLO_API_KEY")
         cfg = self.source.config or {}
-        url = cfg.get("url", self.DEFAULT_URL)
-        client = PoliteClient(min_delay=1.0)
+        search_url, enrich_url = cfg.get("search_url", self.SEARCH_URL), cfg.get("enrich_url", self.ENRICH_URL)
+        enrich, max_enrich = params.get("enrich", True), int(params.get("max_enrich", 25))
+        client = self._client if getattr(self, "_client", None) else PoliteClient(min_delay=1.0)
+        has_person = select(Contact.company_id).where(Contact.contact_type == "individual")
         q = select(Company).where(Company.status == "active", Company.domain.is_not(None), Company.is_demo.is_(False))
         if params.get("company_ids"):
             q = q.where(Company.id.in_(params["company_ids"]))
-        else:
-            q = q.order_by(Company.lead_score.desc().nullslast()).limit(int(params.get("limit", 25)))
+        else:  # best leads that still lack a named contact first
+            q = q.order_by(Company.id.in_(has_person), Company.lead_score.desc().nullslast()).limit(int(params.get("limit", 25)))
+        enriched = 0
         for company in self.db.scalars(q).all():
             try:
-                r = client.api("POST", url, headers={"X-Api-Key": get_settings().apollo_api_key,
-                                                     "Content-Type": "application/json"},
-                               json={"q_organization_domains_list": [company.domain],
-                                     "person_titles": params.get("titles", self.TITLES), "page": 1, "per_page": 10})
-                r.raise_for_status()
-                data = r.json()
+                data = self._post(client, search_url, {"q_organization_domains_list": [company.domain],
+                                                       "person_titles": params.get("titles", self.TITLES),
+                                                       "page": 1, "per_page": int(params.get("per_company", 5))})
+            except NotConfigured:
+                raise
             except Exception as exc:
                 self.stats.failed += 1
-                self.log(f"{company.domain}: {exc}", "warning")
+                self.log(f"{company.domain}: search failed: {exc}", "warning")
                 continue
+            people = data.get("people") or []
             self.db.add(ApiUsage(provider="apollo", operation="people_search", units=1))
-            store_raw(self.db, self.source, "people_search", {"domain": company.domain, "people": data.get("people", [])},
-                      source_url=url, job=self.job)
-            for p in data.get("people", []) or []:
+            store_raw(self.db, self.source, "people_search", {"domain": company.domain, "people": people},
+                      source_url=search_url, job=self.job)
+            for p in people:
                 self.stats.found += 1
-                email = p.get("email")
-                if email and ("not_unlocked" in email or "domain.com" in email):
-                    email = None
-                if not (email or p.get("linkedin_url")):
+                pid = p.get("id")
+                email, linkedin, name, title = self._clean_email(p.get("email")), p.get("linkedin_url"), p.get("name"), p.get("title")
+                if not (email or linkedin) and enrich and pid and enriched < max_enrich:
+                    done = self.db.scalar(select(RawRecord.id).where(RawRecord.source_id == self.source.id,
+                                                                     RawRecord.record_type == "people_match",
+                                                                     RawRecord.external_id == pid))
+                    if not done:
+                        try:
+                            person = (self._post(client, enrich_url, {"id": pid, "reveal_personal_emails": False})
+                                      .get("person") or {})
+                        except NotConfigured:
+                            raise
+                        except Exception as exc:
+                            self.log(f"enrich {pid} failed: {exc}", "warning")
+                            person = {}
+                        enriched += 1
+                        self.db.add(ApiUsage(provider="apollo", operation="people_enrichment", units=1))
+                        store_raw(self.db, self.source, "people_match", person or {"id": pid}, source_url=enrich_url,
+                                  external_id=pid, job=self.job)
+                        email = self._clean_email(person.get("email")) or email
+                        linkedin = person.get("linkedin_url") or linkedin
+                        name = person.get("name") or name
+                        title = person.get("title") or title
+                if not (email or linkedin):
                     continue
-                title = p.get("title")
+                if name and not (p.get("last_name") or "").strip() and name == p.get("name") and "." in (name.split()[-1] if name.split() else ""):
+                    name = None  # masked search result name - don't store a shortened name as fact
                 added = upsert_contact(self.db, company, ContactInput(
-                    contact_type="individual", full_name=p.get("name"), job_title=title,
-                    department=department_for_title(title), email=email, linkedin_url=p.get("linkedin_url"),
-                    decision_role=decision_role_for_title(title), evidence=f"Apollo people search ({company.domain})",
-                    source_url="apollo.io"), self.source, None)
+                    contact_type="individual", full_name=name, job_title=title, department=department_for_title(title),
+                    email=email, linkedin_url=linkedin, decision_role=decision_role_for_title(title),
+                    evidence=f"Apollo people search/enrichment for {company.domain}", source_url="https://app.apollo.io/"),
+                    self.source, None)
                 self.stats.created += int(added)
             self.db.commit()
+        self.log(f"Apollo: {self.stats.found} people found, {enriched} enriched (credits), {self.stats.created} contacts added")
         return self.stats
+
+    def __init__(self, *a, client: PoliteClient | None = None, **kw):
+        super().__init__(*a, **kw)
+        self._client = client
 
 
 def make_directory(key: str):

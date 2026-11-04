@@ -79,6 +79,7 @@ function RunDialog({ s, onDone }: { s: Src; onDone: () => void }) {
     web_search: '{"countries": ["IN","VN"], "polymers": ["LLDPE"], "grades": ["off_grade"], "intents": ["buyer"], "max_queries": 10}',
     us_census: '{"hs_codes": ["390110","390120"], "months": 3}',
     un_comtrade: '{"period": "2025", "reporters": [699, 704]}',
+    apollo: '{"limit": 25, "max_enrich": 25}  (limit = companies searched; max_enrich = people revealed, each uses Apollo credits)',
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
