@@ -51,6 +51,11 @@ def weekly_discovery():
     enqueue_if_enabled("web_search", "discover", {"max_queries": 20}, min_interval_days=6)
 
 
+def registry_discovery():
+    """Key-free: GLEIF legal entity register, plastics-named companies in active markets."""
+    enqueue_if_enabled("gleif", "discover_registry", {}, min_interval_days=25)
+
+
 def producer_discovery():
     """Key-free: Wikidata PE/petrochemical producers -> queue their websites for crawling."""
     enqueue_if_enabled("wikidata", "discover_producers", {}, min_interval_days=25)
@@ -105,6 +110,8 @@ def build_scheduler() -> BackgroundScheduler:
               next_run_time=datetime.now(timezone.utc) + timedelta(minutes=5))
     s.add_job(producer_discovery, "interval", days=1, id="producers",
               next_run_time=datetime.now(timezone.utc) + timedelta(minutes=1))
+    s.add_job(registry_discovery, "interval", days=1, id="registry",
+              next_run_time=datetime.now(timezone.utc) + timedelta(minutes=3))
     s.add_job(website_refresh, "interval", days=1, id="website_refresh")  # daily sweep of records older than N days
     s.add_job(trade_refresh, "interval", days=sched_cfg.get("trade_days", 7), id="trade")
     s.add_job(contact_refresh, "interval", days=sched_cfg.get("contact_days", 30), id="contacts")

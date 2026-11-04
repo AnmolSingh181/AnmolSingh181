@@ -28,10 +28,12 @@ function DiscoverButton() {
   const start = async () => {
     setBusy(true);
     const notes: string[] = [];
-    try {
-      await api("/sources/wikidata/run", { method: "POST", body: JSON.stringify({}) });
-      notes.push("Producer discovery queued.");
-    } catch (x) { notes.push(`Producer discovery: ${(x as Error).message}`); }
+    for (const [key, what] of [["wikidata", "Manufacturer discovery"], ["gleif", "Company-registry discovery"]]) {
+      try {
+        await api(`/sources/${key}/run`, { method: "POST", body: JSON.stringify({}) });
+        notes.push(`${what} queued.`);
+      } catch (x) { notes.push(`${what}: ${(x as Error).message}`); }
+    }
     try {
       const src = await api<{ sources: { key: string; readiness: { ready: boolean } }[] }>("/sources");
       if (src.sources.find((x) => x.key === "web_search")?.readiness.ready) {
@@ -79,9 +81,9 @@ export default function Dashboard() {
 
       {data && t?.companies === 0 && (
         <div className="mt-5"><Empty title="No companies collected yet">
-          <p>Automatic discovery pulls polyethylene and petrochemical producers in your active markets from Wikidata
-            (open data, no key needed) and their websites are crawled. With a search API key, traders, distributors and recyclers are
-            discovered too.</p>
+          <p>Automatic discovery needs no keys: it finds polyethylene and petrochemical producers (Wikidata), crawls their websites,
+            follows their distributor and partner links to traders, and searches the official GLEIF company register for
+            polymer, plastics and recycling companies. Adding a search API key widens it to the open web.</p>
           <div className="mt-3 flex flex-col items-center gap-2"><DiscoverButton /></div>
           <p className="mt-3">You can also import a permitted CSV export or crawl any website from <Link className="text-primary underline" href="/sources">Data sources</Link>.</p>
         </Empty></div>

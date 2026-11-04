@@ -109,6 +109,12 @@ SOURCES = [
          terms_notes="CC0 open data via the official Wikidata Query Service (identifying User-Agent, rate-limited). "
                      "Finds polyethylene / petrochemical producers in active markets and queues their official websites "
                      "for crawling. No key needed."),
+    dict(key="gleif", name="GLEIF legal entity register (open data)", source_type="government",
+         access_method="api", base_url="https://www.gleif.org/", status="active", requires_credentials=False,
+         credential_env_vars=[], refresh_interval_days=30,
+         terms_notes="Official Global LEI register, CC0 open data via the public GLEIF API (no key, ~60 requests/min). "
+                     "Finds active companies in active markets whose legal names contain plastics keywords. Provides legal "
+                     "name, registered address and registration number; no websites or contacts."),
     # --- trade databases
     dict(key="importyeti", name="ImportYeti", source_type="trade_database", access_method="export_import",
          base_url="https://www.importyeti.com/", status="manual_only", requires_credentials=True,
@@ -218,6 +224,11 @@ DEFAULT_SETTINGS = {
         "target_applications": ["film", "extrusion", "blow_moulding", "injection_moulding"],
         "decision_maker_titles": ["procurement", "purchas", "buyer", "sourcing", "sales", "export", "import",
                                   "commercial", "managing director", "business development", "ceo", "owner", "director"],
+    },
+    "discovery": {
+        "follow_partner_links": True,   # crawl companies linked from distributor / agent / partner pages
+        "max_link_depth": 2,            # manufacturer -> distributor -> distributor's partners
+        "max_links_per_site": 40,
     },
     "refresh_schedule": {
         "discovery_days": 7,

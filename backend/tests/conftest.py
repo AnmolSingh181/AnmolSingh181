@@ -59,17 +59,24 @@ def db():
 
 
 def site_transport():
-    """Serves tests/fixtures/site as https://fixture-polymers.example"""
+    """Serves tests/fixtures/site as https://fixture-polymers.example plus two linked sites."""
     routes = {"/": "index.html", "/about-us": "about.html", "/products": "products.html", "/contact": "contact.html",
-              "/robots.txt": "robots.txt", "/sitemap.xml": "sitemap.xml"}
+              "/distributors": "distributors.html", "/robots.txt": "robots.txt", "/sitemap.xml": "sitemap.xml"}
+    other_hosts = {"fixture-trader.example": "trader.html", "fixture-bank.example": "bank.html"}
 
     def handler(request: httpx.Request):
         path = request.url.path.rstrip("/") or "/"
-        if request.url.host not in ("fixture-polymers.example", "www.fixture-polymers.example"):
-            return httpx.Response(404)
-        if path.startswith("/private"):
-            raise AssertionError("crawler fetched a robots-disallowed URL")
-        f = routes.get(path)
+        host = request.url.host.removeprefix("www.")
+        if host in other_hosts:
+            if path == "/robots.txt":
+                return httpx.Response(404)
+            f = other_hosts[host] if path == "/" else None
+        elif host == "fixture-polymers.example":
+            if path.startswith("/private"):
+                raise AssertionError("crawler fetched a robots-disallowed URL")
+            f = routes.get(path)
+        else:
+            return httpx.Response(404, text="not found", headers={"content-type": "text/html"})
         if not f:
             return httpx.Response(404, text="not found", headers={"content-type": "text/html"})
         ctype = "text/plain" if f.endswith(".txt") else "application/xml" if f.endswith(".xml") else "text/html; charset=utf-8"

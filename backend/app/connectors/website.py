@@ -25,7 +25,8 @@ PAGE_KEYWORDS = [
     ("contact", 10), ("about", 9), ("product", 9), ("material", 8), ("polymer", 8), ("resin", 8), ("polyethylene", 8),
     ("ldpe", 8), ("hdpe", 8), ("lldpe", 8), ("recycl", 7), ("service", 5), ("profile", 6), ("company", 5),
     ("who-we-are", 7), ("what-we-do", 6), ("trading", 6), ("supply", 4), ("export", 4), ("import", 4), ("team", 4),
-    ("grade", 5), ("catalog", 5), ("lien-he", 8), ("gioi-thieu", 7), ("san-pham", 7), ("lianxi", 6), ("guanyu", 5),
+    ("grade", 5), ("catalog", 5), ("distributor", 9), ("dealer", 7), ("where-to-buy", 9), ("sales-network", 8),
+    ("representative", 6), ("agent", 5), ("partner", 5), ("network", 3), ("lien-he", 8), ("gioi-thieu", 7), ("san-pham", 7), ("lianxi", 6), ("guanyu", 5),
 ]
 SKIP_EXT = re.compile(r"\.(pdf|jpe?g|png|gif|webp|svg|zip|rar|docx?|xlsx?|pptx?|mp4|mp3|css|js)(\?|$)", re.I)
 SKIP_PATH = re.compile(r"/(cart|checkout|login|signin|sign-in|register|account|wp-admin|wp-login|privacy|cookie|terms|tag|"
@@ -77,6 +78,42 @@ def parse_sitemap(xml_text: str) -> list[str]:
     return [el.text.strip() for el in root.iter() if el.tag.endswith("loc") and el.text]
 
 
+PARTNER_PAGE_RE = re.compile(r"distribut|dealer|where[-_ ]to[-_ ]buy|sales[-_ ]network|represent|agent|partner|stockist|"
+                             r"channel|network|offices", re.IGNORECASE)
+PLASTICS_RE = re.compile(r"\b(polymers?|plastics?|resins?|polyolefins?|polyethylene|petrochemicals?|masterbatch|"
+                         r"granules|recycl\w+)\b", re.IGNORECASE)
+
+
+def is_plastics_relevant(text: str) -> bool:
+    from app.services.classifier import find_polymers
+
+    return bool(find_polymers(text[:200_000])) or len(PLASTICS_RE.findall(text[:200_000])) >= 3
+
+
+def partner_links(pages: list[tuple[str, str]], own_domain: str) -> list[tuple[str, str]]:
+    """External company domains linked from distributor/partner pages (or links labelled as such).
+    Returns [(domain, page_url)] with marketplaces, social networks, news and generic domains removed."""
+    from app.connectors.web_search import keep_result
+
+    out: dict[str, str] = {}
+    for purl, html in pages:
+        soup = BeautifulSoup(html, "lxml")
+        title = " ".join(t.get_text(" ") for t in soup.find_all(["title", "h1", "h2"])[:4])
+        partner_page = bool(PARTNER_PAGE_RE.search(urlparse(purl).path) or PARTNER_PAGE_RE.search(title))
+        for a in soup.find_all("a", href=True):
+            href = urljoin(purl, a["href"])
+            p = urlparse(href)
+            if p.scheme not in ("http", "https"):
+                continue
+            d = extract_domain(href)
+            if not d or d == own_domain or d in out or not keep_result(href):
+                continue
+            label = a.get_text(" ", strip=True) + " " + href
+            if partner_page or PARTNER_PAGE_RE.search(label) or PLASTICS_RE.search(label):
+                out[d] = purl
+    return list(out.items())
+
+
 class WebsiteConnector(BaseConnector):
     key = "company_website"
     job_types = ("crawl_website", "refresh_websites")
@@ -97,7 +134,8 @@ class WebsiteConnector(BaseConnector):
         url = params.get("url")
         if not url:
             raise ValueError("crawl_website requires params.url")
-        self.crawl(url, country_hint=params.get("country"), discovery_query=params.get("query"))
+        self.crawl(url, country_hint=params.get("country"), discovery_query=params.get("query"),
+                   depth=int(params.get("depth", 0)))
         return self.stats
 
     def _refresh(self, params: dict) -> JobStats:
@@ -180,7 +218,8 @@ class WebsiteConnector(BaseConnector):
         ranked = sorted((u for u in scored if u != base_norm), key=lambda u: -scored[u])
         return ranked[: max(0, get_settings().crawler_max_pages_per_site - 1)]
 
-    def crawl(self, url: str, country_hint: str | None = None, discovery_query: str | None = None) -> str | None:
+    def crawl(self, url: str, country_hint: str | None = None, discovery_query: str | None = None,
+              depth: int = 0) -> str | None:
         url = normalize_url(url)
         if not url:
             raise ValueError("invalid url")
@@ -207,10 +246,10 @@ class WebsiteConnector(BaseConnector):
                 self.log(str(exc), "warning")
             except Exception as exc:
                 self.log(f"page fetch failed {purl}: {exc}", "warning")
-        return self.process_pages(domain, pages, country_hint=country_hint, discovery_query=discovery_query)
+        return self.process_pages(domain, pages, country_hint=country_hint, discovery_query=discovery_query, depth=depth)
 
     def process_pages(self, domain: str, pages: list[tuple[str, str]], country_hint: str | None = None,
-                      discovery_query: str | None = None, is_demo: bool = False) -> str | None:
+                      discovery_query: str | None = None, is_demo: bool = False, depth: int = 0) -> str | None:
         """Turn fetched pages into one company record. Separated from fetching so it is testable offline."""
         now = datetime.now(timezone.utc)
         texts, contacts, raws = [], [], []
@@ -243,6 +282,13 @@ class WebsiteConnector(BaseConnector):
         tld = domain.rsplit(".", 1)[-1] if domain else ""
         country = info_all.country or CCTLD_COUNTRY.get(tld) or country_hint
         combined = "\n\n".join(texts)
+        if depth >= 1 and not is_plastics_relevant(combined):
+            # found by following a link: keep only businesses that actually talk about plastics/polymers
+            for r in raws:
+                r.processing_status, r.processed_at = "skipped", now
+            self.log(f"{domain}: not plastics-related, skipped (linked from {discovery_query})")
+            self.db.commit()
+            return None
         out = ingest_company(self.db, self.source, CompanyInput(
             name=name or domain, country=country, city=info_all.city, state=info_all.state,
             address=info_all.address, postal_code=info_all.postal_code, website=f"https://{domain}" if domain else None,
@@ -260,4 +306,39 @@ class WebsiteConnector(BaseConnector):
         self.log(f"{domain}: {'created' if out.created else 'updated'} ({out.match_method}), "
                  f"{out.materials_added} material rows, {out.contacts_added} contacts, {len(pages)} pages")
         self.db.commit()
+        if not is_demo:
+            self.queue_linked_companies(domain, pages, depth)
         return out.company_id
+
+    def queue_linked_companies(self, domain: str, pages: list[tuple[str, str]], depth: int) -> int:
+        """Snowball discovery: follow links to other companies from distributor / agent / partner pages."""
+        from datetime import timedelta
+
+        from sqlalchemy import select
+
+        from app.models import ScrapeJob
+        from app.services.settings_store import get_setting
+
+        cfg = get_setting(self.db, "discovery")
+        if not cfg.get("follow_partner_links", True) or depth >= int(cfg.get("max_link_depth", 2)):
+            return 0
+        found = partner_links(pages, domain)[: int(cfg.get("max_links_per_site", 40))]
+        if not found:
+            return 0
+        known = {d for (d,) in self.db.execute(select(Company.domain).where(Company.domain.in_([d for d, _ in found]))).all()}
+        since = datetime.now(timezone.utc) - timedelta(days=30)
+        recent_urls = {u for (u,) in self.db.execute(select(ScrapeJob.params["url"].astext).where(
+            ScrapeJob.source_id == self.source.id, ScrapeJob.created_at >= since)).all()}
+        n = 0
+        for d, via in found:
+            url = f"https://{d}"
+            if d in known or url in recent_urls:
+                continue
+            self.db.add(ScrapeJob(source_id=self.source.id, job_type="crawl_website", priority=70 + 10 * depth,
+                                  params={"url": url, "depth": depth + 1, "query": f"linked from {domain}",
+                                          "referrer_page": via}))
+            n += 1
+        self.db.commit()
+        if n:
+            self.log(f"{domain}: queued {n} linked companies (distributor/partner links) for crawling")
+        return n

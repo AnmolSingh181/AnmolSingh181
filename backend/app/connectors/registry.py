@@ -7,12 +7,14 @@ from app.connectors.government import ComtradeConnector, UsCensusConnector
 from app.connectors.imports import CsvImportConnector
 from app.connectors.web_search import WebSearchConnector
 from app.connectors.website import WebsiteConnector
+from app.connectors.gleif import GleifConnector
 from app.connectors.wikidata import WikidataConnector
 
 CONNECTORS: dict[str, type[BaseConnector]] = {
     "web_search": WebSearchConnector,
     "company_website": WebsiteConnector,
     "wikidata": WikidataConnector,
+    "gleif": GleifConnector,
     "us_census": UsCensusConnector,
     "un_comtrade": ComtradeConnector,
     "csv_import": CsvImportConnector,
@@ -33,6 +35,7 @@ DEFAULT_JOB = {
     "web_search": "discover",
     "company_website": "refresh_websites",
     "wikidata": "discover_producers",
+    "gleif": "discover_registry",
     "us_census": "trade_stats",
     "un_comtrade": "trade_stats",
     "importyeti": "fetch_shipments",

@@ -43,7 +43,7 @@ def test_website_crawl_end_to_end(db):
     assert not any("logo@2x" in (x.email or "") for x in c.contacts)
     assert db.scalar(select(func.count()).select_from(PriceObservation)) >= 1
     # traceability: every page stored raw, the company linked to a source record
-    assert db.scalar(select(func.count()).select_from(RawRecord)) == 4
+    assert db.scalar(select(func.count()).select_from(RawRecord)) == 5
     assert db.scalar(select(func.count()).select_from(CompanySourceRecord).where(CompanySourceRecord.company_id == c.id)) == 1
     assert c.lead_score and c.lead_score_breakdown["components"]["material_relevance"]["points"] > 0
     # re-crawl: no duplicate company, raw pages deduplicated by hash
@@ -115,3 +115,23 @@ def test_suppressed_contact_not_recollected(db):
     db.commit()
     crawl_fixture(db)
     assert not db.scalar(select(Contact).where(Contact.email_normalized == "jane.testperson@fixture-polymers.example"))
+
+
+def test_snowball_follows_distributor_links(db):
+    from app.workers.runner import claim_next
+
+    crawl_fixture(db)
+    queued = db.scalars(select(ScrapeJob).where(ScrapeJob.status == "queued")).all()
+    urls = {j.params["url"] for j in queued}
+    # links labelled distributor/partner are followed; facebook (social network) is excluded
+    assert urls == {"https://fixture-trader.example", "https://fixture-bank.example", "https://other-site.example"}
+    assert all(j.params["depth"] == 1 for j in queued)
+    client = PoliteClient(min_delay=0, transport=site_transport())
+    while (job := claim_next(db)):
+        execute(db, job, {"client": client})
+    names = {c.name for c in db.scalars(select(Company)).all()}
+    assert "Fixture Resin Traders" in names
+    assert not any("Bank" in n for n in names)  # not plastics-related -> skipped
+    trader = db.scalar(select(Company).where(Company.name == "Fixture Resin Traders"))
+    assert {m.material.code for m in trader.materials} >= {"LLDPE", "HDPE"}
+    assert "trader" in {c.category for c in trader.classifications}
