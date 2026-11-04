@@ -1,7 +1,7 @@
 """Wikidata producer discovery, using a synthetic response in the standard SPARQL JSON results format."""
 from sqlalchemy import select
 
-from app.connectors.wikidata import WikidataConnector, build_query, group_bindings
+from app.connectors.wikidata import WikidataConnector, build_queries, group_bindings
 from app.models import Company, ScrapeJob, Source
 
 
@@ -24,9 +24,33 @@ DATA = {"head": {"vars": ["company", "companyLabel", "website", "iso", "hqLabel"
 ]}}
 
 
-def test_query_contains_markets_and_properties():
-    q = build_query(["US", "AE"])
-    assert '"US" "AE"' in q and "wdt:P1056" in q and "wdt:P452" in q and "wdt:P856" in q
+def test_queries_start_from_products_and_industry():
+    qp, qi = build_queries()
+    assert "wdt:P1056" in qp and "wdt:P452" in qi
+    for q in (qp, qi):
+        assert 'hint:optimizer "None"' in q and "wdt:P856" in q and "wdt:P297" in q
+        # the selective pattern comes before the country lookup
+        assert q.index("rdfs:label ?what") < q.index("wdt:P17")
+
+
+def test_run_filters_to_active_markets(db):
+    import httpx
+
+    from app.services.http import PoliteClient
+
+    def handler(request):
+        return httpx.Response(200, json=DATA)
+    src = db.scalar(select(Source).where(Source.key == "wikidata"))
+    conn = WikidataConnector(db, src, client=PoliteClient(min_delay=0, transport=httpx.MockTransport(handler)))
+    stats = conn.run("discover_producers", {"countries": ["SA"], "crawl_websites": False})
+    assert stats.created == 1  # IN company filtered out
+    timeouts = WikidataConnector(db, src, client=PoliteClient(min_delay=0, transport=httpx.MockTransport(
+        lambda r: httpx.Response(504))))
+    try:
+        timeouts.run("discover_producers", {"countries": ["SA"]})
+        raise AssertionError("expected failure")
+    except RuntimeError as exc:
+        assert "will retry" in str(exc)
 
 
 def test_grouping():

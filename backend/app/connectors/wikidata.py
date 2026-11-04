@@ -32,33 +32,30 @@ PRODUCT_LABELS = {
 INDUSTRY_LABELS = ["petrochemical industry"]
 
 
-def build_query(iso_codes: list[str], limit: int = 500) -> str:
-    isos = " ".join(f'"{c}"' for c in iso_codes)
+def build_queries(limit: int = 3000) -> list[str]:
+    """Two small queries that start from the product/industry items (a handful) rather than from countries
+    (millions of entities), with the optimizer pinned to the written order so they finish well inside the
+    query service's 60-second limit. Country filtering happens in Python."""
     products = " ".join(f'"{p}"@en' for p in PRODUCT_LABELS)
     industries = " ".join(f'"{i}"@en' for i in INDUSTRY_LABELS)
-    return f"""
-SELECT DISTINCT ?company ?companyLabel ?website ?iso ?hqLabel ?kind ?what WHERE {{
-  VALUES ?iso {{ {isos} }}
-  ?country wdt:P297 ?iso .
-  ?company wdt:P17 ?country .
-  {{
-    VALUES ?what {{ {products} }}
-    ?product rdfs:label ?what .
-    ?company wdt:P1056 ?product .
-    BIND("produces" AS ?kind)
-  }} UNION {{
-    VALUES ?what {{ {industries} }}
-    ?industry rdfs:label ?what .
-    ?company wdt:P452 ?industry .
-    BIND("industry" AS ?kind)
-  }}
-  OPTIONAL {{ ?company wdt:P856 ?website . }}
-  OPTIONAL {{ ?company wdt:P159 ?hq . }}
-  FILTER NOT EXISTS {{ ?company wdt:P576 ?dissolved . }}
-  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
-}}
-LIMIT {limit}
-"""
+    tail = """
+  OPTIONAL { ?company wdt:P17 ?country . ?country wdt:P297 ?iso . }
+  OPTIONAL { ?company wdt:P856 ?website . }
+  OPTIONAL { ?company wdt:P159 ?hq . }
+  FILTER NOT EXISTS { ?company wdt:P576 ?dissolved . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}
+LIMIT %d""" % limit
+    head = "SELECT DISTINCT ?company ?companyLabel ?website ?iso ?hqLabel ?kind ?what WHERE {\n  hint:Query hint:optimizer \"None\" .\n"
+    q_products = head + f"""  VALUES ?what {{ {products} }}
+  ?product rdfs:label ?what .
+  ?company wdt:P1056 ?product .
+  BIND("produces" AS ?kind)""" + tail
+    q_industry = head + f"""  VALUES ?what {{ {industries} }}
+  ?industry rdfs:label ?what .
+  ?company wdt:P452 ?industry .
+  BIND("industry" AS ?kind)""" + tail
+    return [q_products, q_industry]
 
 
 def group_bindings(data: dict) -> dict[str, dict]:
@@ -98,12 +95,25 @@ class WikidataConnector(BaseConnector):
 
     def run(self, job_type: str, params: dict) -> JobStats:
         db = self.db
-        isos = params.get("countries") or [c.code for c in db.scalars(select(Country).where(Country.is_active)).all()]
-        client = self._client or PoliteClient(min_delay=1.0, timeout=90)
-        r = client.api("GET", ENDPOINT, params={"query": build_query(isos, int(params.get("limit", 500))), "format": "json"},
-                       headers={"Accept": "application/sparql-results+json"})
-        r.raise_for_status()
-        data = r.json()
+        isos = set(params.get("countries") or [c.code for c in db.scalars(select(Country).where(Country.is_active)).all()])
+        client = self._client or PoliteClient(min_delay=2.0, timeout=90)
+        bindings: list = []
+        for q in build_queries(int(params.get("limit", 3000))):
+            for attempt in (1, 2):  # the public endpoint occasionally times out under load: one retry
+                try:
+                    r = client.api("GET", ENDPOINT, params={"query": q, "format": "json"},
+                                   headers={"Accept": "application/sparql-results+json"})
+                    r.raise_for_status()
+                    bindings += (r.json().get("results") or {}).get("bindings", [])
+                    break
+                except Exception as exc:
+                    self.log(f"Wikidata query attempt {attempt} failed: {exc}", "warning")
+                    if attempt == 2:
+                        self.stats.failed += 1
+        if not bindings and self.stats.failed:
+            raise RuntimeError("Wikidata queries failed (see log); will retry later")
+        data = {"results": {"bindings": [b for b in bindings if (b.get("iso") or {}).get("value") in isos]}}
+        self.log(f"{len(bindings)} rows from Wikidata, {len(data['results']['bindings'])} in active markets {sorted(isos)}")
         return self.process(data, crawl=params.get("crawl_websites", True))
 
     def process(self, data: dict, crawl: bool = True) -> JobStats:
