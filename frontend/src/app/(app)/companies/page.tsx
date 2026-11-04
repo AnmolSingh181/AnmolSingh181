@@ -87,6 +87,10 @@ function CompaniesInner() {
   const pathname = usePathname();
   const [f, setF] = React.useState<Filters>(() => fromParams(new URLSearchParams(sp.toString())));
   const [showFilters, setShowFilters] = React.useState(true);
+  const advActive = (["city", "polymer_match", "has_contacts", "has_email", "has_phone", "has_website", "has_decision_maker",
+    "contact_title", "min_score", "max_score"] as const).some((k) => !!f[k]) ||
+    (["grade", "application", "trade_role", "contact_verification", "tier", "source"] as const).some((k) => f[k].length > 0);
+  const [more, setMore] = React.useState(advActive);
   const [q, setQ] = React.useState(f.q ?? "");
   React.useEffect(() => {
     const s = toParams(f).toString();
@@ -109,22 +113,25 @@ function CompaniesInner() {
           <AddCompany onCreated={(id) => router.push(`/companies/${id}`)} />
         </>} />
       {showFilters && (
-        <div className="mb-4 rounded-lg border bg-card p-3">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        <div className="mb-3 rounded-lg border bg-card p-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
             <Input className="sm:col-span-2" placeholder="Search name, domain, description, CMP-ref…" value={q} onChange={(e) => setQ(e.target.value)} />
             <MultiSelect placeholder="Country" value={f.country} onChange={(v) => set({ country: v })}
               options={(meta?.countries ?? []).map((c) => ({ value: c.code, label: c.name }))} />
-            <Input placeholder="City" value={f.city ?? ""} onChange={(e) => set({ city: e.target.value || undefined })} />
             <MultiSelect placeholder="Polymer" value={f.polymer} onChange={(v) => set({ polymer: v })}
               options={(meta?.materials ?? []).map((m) => ({ value: m.code, label: label(m.code) }))} />
+            <MultiSelect placeholder="Buyer / seller" value={f.relationship} onChange={(v) => set({ relationship: v })}
+              options={["buyer", "seller", "both", "manufacturer", "historical_buyer", "historical_seller"].map((v) => ({ value: v }))} />
+            <MultiSelect placeholder="Company type" value={f.company_type} onChange={(v) => set({ company_type: v })} options={opt(meta?.company_types)} />
+          </div>
+          {more && (
+            <div className="mt-2 grid grid-cols-1 gap-2 border-t pt-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+            <Input placeholder="City" value={f.city ?? ""} onChange={(e) => set({ city: e.target.value || undefined })} />
             <NativeSelect value={f.polymer_match ?? "any"} onChange={(e) => set({ polymer_match: e.target.value === "all" ? "all" : undefined })} aria-label="Polymer match">
               <option value="any">Deals in any selected polymer</option><option value="all">Deals in all selected polymers</option>
             </NativeSelect>
             <MultiSelect placeholder="Grade" value={f.grade} onChange={(v) => set({ grade: v })} options={opt(meta?.grade_categories)} />
             <MultiSelect placeholder="Application" value={f.application} onChange={(v) => set({ application: v })} options={opt(meta?.applications)} />
-            <MultiSelect placeholder="Buyer / seller" value={f.relationship} onChange={(v) => set({ relationship: v })}
-              options={["buyer", "seller", "both", "manufacturer", "historical_buyer", "historical_seller"].map((v) => ({ value: v }))} />
-            <MultiSelect placeholder="Company type" value={f.company_type} onChange={(v) => set({ company_type: v })} options={opt(meta?.company_types)} />
             <MultiSelect placeholder="Importer / exporter" value={f.trade_role} onChange={(v) => set({ trade_role: v })} options={[{ value: "importer" }, { value: "exporter" }]} />
             <MultiSelect placeholder="Contact verification" value={f.contact_verification} onChange={(v) => set({ contact_verification: v })} options={opt(meta?.verification_statuses)} />
             <TriState label="Contacts" value={f.has_contacts} onChange={(v) => set({ has_contacts: v })} />
@@ -138,15 +145,25 @@ function CompaniesInner() {
             <Input type="number" min={0} max={100} placeholder="Min score" value={f.min_score ?? ""} onChange={(e) => set({ min_score: e.target.value || undefined })} />
             <MultiSelect placeholder="Score tier" value={f.tier} onChange={(v) => set({ tier: v })} options={(meta?.tiers ?? []).map((t) => ({ value: t, label: t }))} />
             <MultiSelect placeholder="Data source" value={f.source} onChange={(v) => set({ source: v })} options={(meta?.sources ?? []).map((s) => ({ value: s.key, label: s.name }))} />
+            </div>
+          )}
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <Button variant="link" size="sm" onClick={() => setMore(!more)}>{more ? "Fewer filters" : `More filters${advActive ? " (active)" : ""}`}</Button>
+            {active && <Button variant="link" size="sm" onClick={() => { setQ(""); setF(fromParams(new URLSearchParams())); }}><X /> Clear all filters</Button>}
+          </div>
+        </div>
+      )}
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">{data ? `${data.total.toLocaleString()} compan${data.total === 1 ? "y" : "ies"} found` : "Loading…"}
+          {f.country.length > 0 && ` in ${f.country.map((c) => countryName(meta, c)).join(", ")}`}</p>
+        <div className="w-56">
             <NativeSelect value={`${f.sort ?? "score"}:${f.order ?? "desc"}`} onChange={(e) => { const [s, o] = e.target.value.split(":"); set({ sort: s, order: o }); }} aria-label="Sort">
               <option value="score:desc">Sort: lead score ↓</option><option value="name:asc">Sort: name A–Z</option>
               <option value="discovered:desc">Sort: newest</option><option value="verified:desc">Sort: recently verified</option>
               <option value="country:asc">Sort: country</option>
             </NativeSelect>
-          </div>
-          {active && <Button variant="link" size="sm" className="mt-2" onClick={() => { setQ(""); setF(fromParams(new URLSearchParams())); }}><X /> Clear all filters</Button>}
         </div>
-      )}
+      </div>
       <ErrorNote error={error} />
       {data && data.total === 0 ? (
         <Empty title="No companies match these filters">Results only include records with collected evidence. Widen the filters or collect more data in Data sources.</Empty>
