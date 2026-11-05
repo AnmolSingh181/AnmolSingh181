@@ -41,12 +41,12 @@ Automatic match requires a strong identifier:
 Similar names alone **never** merge; they create `duplicate_candidates` for review (Data quality page). Merging keeps the
 merged record (`status='merged'`, `merged_into_id`), moves children, adds aliases and keeps all source records.
 
-## Database structure (29 tables)
+## Database structure (33 tables)
 
 | Table | Purpose |
 |---|---|
 | `countries` | ISO2, M49 (Comtrade), phone prefix, aliases, local-language search terms, `is_active` market flag |
-| `materials` | LDPE, LLDPE, HDPE, PE_SCRAP, PE_OTHER with HS codes and synonyms |
+| `materials` | LDPE, LLDPE, HDPE, PE_SCRAP, PE_OTHER (lead targets) plus PP, PVC, PET, PS (price tracking) with HS codes and synonyms |
 | `users`, `user_activity` | accounts/roles (admin, analyst, viewer) and audit log |
 | `sources` | registry of every connector: type, access method, status, enabled, terms/pricing notes, config |
 | `scrape_jobs` | job queue + history: params, status, attempts, counts, log |
@@ -57,7 +57,11 @@ merged record (`status='merged'`, `merged_into_id`), moves children, adds aliase
 | `company_classifications` | manufacturer/producer/trader/distributor/importer/exporter/recycler/processor/converter/scrap_aggregator with evidence + review status |
 | `company_materials` | company × polymer × grade × application × relationship, quantities, method, confidence, evidence, review status, `is_current` history |
 | `material_specifications` | MFI, density, colour, brand, grade number, form, origin, packaging, each with evidence |
-| `price_observations` | price, currency, unit, incoterm, evidence |
+| `price_observations` | company-specific offers extracted from websites: price, currency, unit, incoterm, evidence |
+| `price_series` | market price benchmarks: material, market (country/location), price type, currency/unit, frequency, source, feed config |
+| `price_points` | observations per series and timestamp: price, low/high, volume/open interest, contract, origin (connector/manual/import), source URL, note |
+| `fx_rates` | units of currency per USD by date (FRED H.10, manual) for normalising prices |
+| `price_alert_rules` | above / below / % move rules per series |
 | `shipments` | trade records: parties (raw + resolved company), countries, ports, HS, description, inferred material (+ how), quantity/weight/value |
 | `trade_statistics` | country-level official flows by HS code and period |
 | `company_source_records` | every sighting of a company: source, raw record, URL, extracted data, match method/score |
@@ -71,7 +75,7 @@ merged record (`status='merged'`, `merged_into_id`), moves children, adds aliase
 | `alerts` | new company, material change, new shipment, job failed (+ webhook delivery flag) |
 | `api_usage` | calls/tokens/estimated cost per provider |
 | `classification_reviews` | manual QA sample for accuracy measurement |
-| `app_settings` | lead-scoring weights/tiers, refresh schedule |
+| `app_settings` | lead-scoring weights/tiers, refresh schedule, price tracking (refresh hours, FX pegs, staleness) |
 
 Controlled vocabularies are `text` + `CHECK` constraints (see `app/enums.py`), so adding a value is one migration.
 Full DDL: `db/schema.sql` (generated) or `backend/migrations/versions/`.
@@ -80,6 +84,7 @@ Full DDL: `db/schema.sql` (generated) or `backend/migrations/versions/`.
 - **New country**: add a row to `COUNTRIES` in `app/data/reference.py`, run `seed-reference`, toggle it active in Settings.
 - **New material**: add to `MATERIALS` (+ HS map) and patterns to `material_dictionary.yaml`.
 - **New terminology**: edit `material_dictionary.yaml` (no code change).
+- **New price series / market**: *Add series* on the Market prices page, or add to `PRICE_SERIES` in `app/data/reference.py` and run `seed-reference`.
 - **New source**: add to `SOURCES`; if it needs bespoke logic, subclass `BaseConnector` and register it in `connectors/registry.py`.
 
 ## Lead scoring (default weights, editable in Settings)

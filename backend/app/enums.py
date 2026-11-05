@@ -74,7 +74,8 @@ VERIFICATION_RESULTS = ["pass", "fail", "unknown"]
 
 COMPANY_STATUSES = ["active", "merged", "opted_out", "archived"]
 
-SOURCE_TYPES = ["trade_database", "directory", "website", "search_api", "government", "enrichment", "manual_import", "ai"]
+SOURCE_TYPES = ["trade_database", "directory", "website", "search_api", "government", "enrichment", "manual_import", "ai",
+                "market_data"]
 ACCESS_METHODS = ["api", "export_import", "scrape", "manual"]
 SOURCE_STATUSES = ["active", "awaiting_credentials", "requires_terms_review", "disabled", "error", "manual_only"]
 
@@ -94,6 +95,20 @@ TRADE_FLOWS = ["import", "export"]
 LOCATION_TYPES = ["headquarters", "plant", "warehouse", "office", "sales", "other"]
 
 TARGET_POLYMERS = ["LDPE", "LLDPE", "HDPE"]
+
+# Market price tracking
+PRICE_TYPES = [
+    "futures",          # exchange-traded contract (e.g. DCE LLDPE)
+    "spot",             # physical spot / domestic market quote
+    "contract",         # monthly contract price (e.g. US contract PE)
+    "producer_list",    # producer / distributor price circular (e.g. Indian producer list prices)
+    "assessment",       # price-reporting-agency assessment (ICIS, Platts, Argus, ChemOrbis ...)
+    "index",            # official price index (e.g. US PPI) - not a price per tonne
+    "feedstock",        # crude oil, naphtha, ethylene, natural gas
+]
+PRICE_FREQUENCIES = ["intraday", "daily", "weekly", "monthly"]
+PRICE_UNITS = ["t", "kg", "lb", "index", "bbl", "mmbtu"]
+PRICE_ALERT_CONDITIONS = ["above", "below", "change_pct"]
 
 
 def check_in(column: str, values: list[str], nullable: bool = False) -> str:

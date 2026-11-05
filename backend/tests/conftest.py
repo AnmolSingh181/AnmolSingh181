@@ -56,6 +56,12 @@ def db():
         wipe = [t for t in tables if t not in KEEP]
         c.execute(text(f"TRUNCATE {', '.join(wipe)} RESTART IDENTITY CASCADE"))
         c.execute(text("UPDATE sources SET config='{}', total_records=0, last_run_at=NULL, last_success_at=NULL, last_error=NULL"))
+    from app.cli import seed_price_series  # price_series is wiped above; restore the default series
+
+    s2 = SessionLocal()
+    seed_price_series(s2)
+    s2.commit()
+    s2.close()
 
 
 def site_transport():

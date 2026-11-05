@@ -30,6 +30,16 @@ interfaces but **were not executed against the live services**; run them once af
 | ZeroBounce | Awaiting credentials | Email verification API | The only path to `email_verified` status |
 | OpenAI | Awaiting credentials | Structured extraction (`OPENAI_MODEL`, default gpt-5-mini) | Optional; rules work without it. Budget cap `AI_MONTHLY_BUDGET_USD` |
 
+### Market prices (see [PRICES.md](PRICES.md))
+
+| Source | Status | Method | What is needed / notes |
+|---|---|---|---|
+| FRED (St. Louis Fed) | **Active** (no key) | Public `fredgraph.csv` download, or official JSON API with `FRED_API_KEY` | US PPI resin indices (monthly), Brent and Henry Hub (daily), Federal Reserve H.10 FX rates used for normalisation. Unverified live in build env |
+| Dalian Commodity Exchange (DCE) API | Awaiting credentials | Official DCE data API: token (`apikey` + secret) then `dayQuotes` | `DCE_API_KEY`, `DCE_SECRET`; enable the source. Daily settlement of the highest-open-interest LLDPE / PP / PVC contract (CNY/t, incl. VAT). Review DCE data terms. Unverified live in build env |
+| Price feed URL | **Active** | Polls `config.feed_url` per series (CSV/JSON, field mapping, `${ENV:VAR}` secrets) | For subscription APIs or a sheet your team maintains from producer price circulars |
+| Price import & manual entry | **Active** | Market prices page / `POST /prices/import` / `app.cli import-prices` | India producer list prices, PRA exports |
+| ICIS, S&P Global Platts, Argus, ChemOrbis, Polymerupdate, SunSirs | Manual import only | Permitted exports, or a feed URL under your contract | Paid price-reporting agencies; not scraped |
+
 ## Configuring a trade-database API (when you have a contract)
 `PATCH /sources/{id}` with
 ```json

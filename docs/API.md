@@ -18,6 +18,7 @@ Roles: **admin** (sources, settings, users, privacy), **analyst** (edit data, CR
 | Quality | `GET /quality` (acceptance metrics) · `GET /quality/review-sample` · `GET /duplicates` · `POST /duplicates/{id}/merge` · `POST /duplicates/{id}/reject` |
 | Settings | `GET/PUT /settings/{lead_scoring,refresh_schedule}` · `POST /admin/rescore` |
 | Alerts | `GET /alerts` · `POST /alerts/read-all` |
+| Market prices | `GET /prices/board` · `GET /prices/compare` · `GET/POST /prices/series` · `PATCH /prices/series/{id}` · `GET /prices/series/{id}/history` · `POST /prices/series/{id}/points` · `DELETE /prices/points/{id}` · `POST /prices/import` · `POST /prices/refresh` · `GET/POST /prices/fx` · `GET/POST /prices/alerts` · `DELETE /prices/alerts/{id}` · `GET /prices/meta` — details in [PRICES.md](PRICES.md) |
 | Privacy | `POST /privacy/requests` (public) · `GET /privacy/requests` · `POST /privacy/requests/{id}/resolve` |
 
 ### Company filters (`GET /companies`)

@@ -675,5 +675,98 @@ CREATE INDEX ix_material_specifications_company_material_id ON material_specific
 
 INSERT INTO alembic_version (version_num) VALUES ('0001') RETURNING alembic_version.version_num;
 
+-- Running upgrade 0001 -> 0002
+
+ALTER TABLE sources DROP CONSTRAINT ck_sources_type;
+
+ALTER TABLE sources ADD CONSTRAINT ck_sources_type CHECK (source_type IN ('trade_database', 'directory', 'website', 'search_api', 'government', 'enrichment', 'manual_import', 'ai', 'market_data'));
+
+CREATE TABLE fx_rates (
+    id BIGSERIAL NOT NULL, 
+    currency VARCHAR(3) NOT NULL, 
+    rate_date DATE NOT NULL, 
+    per_usd NUMERIC(18, 8) NOT NULL, 
+    source VARCHAR(40) NOT NULL, 
+    collected_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+    PRIMARY KEY (id), 
+    CONSTRAINT ck_fx_positive CHECK (per_usd > 0), 
+    CONSTRAINT uq_fx_currency_date UNIQUE (currency, rate_date)
+);
+
+CREATE TABLE price_series (
+    id SERIAL NOT NULL, 
+    key VARCHAR(80) NOT NULL, 
+    name VARCHAR(200) NOT NULL, 
+    material_id INTEGER, 
+    grade VARCHAR(120), 
+    country_code VARCHAR(2), 
+    location VARCHAR(120), 
+    price_type VARCHAR(20) NOT NULL, 
+    currency VARCHAR(3), 
+    unit VARCHAR(10) NOT NULL, 
+    incoterm VARCHAR(20), 
+    frequency VARCHAR(10) NOT NULL, 
+    source_id INTEGER, 
+    external_code VARCHAR(120), 
+    config JSONB NOT NULL, 
+    is_active BOOLEAN NOT NULL, 
+    notes TEXT, 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+    PRIMARY KEY (id), 
+    CONSTRAINT ck_pseries_freq CHECK (frequency IN ('intraday', 'daily', 'weekly', 'monthly')), 
+    CONSTRAINT ck_pseries_type CHECK (price_type IN ('futures', 'spot', 'contract', 'producer_list', 'assessment', 'index', 'feedstock')), 
+    CONSTRAINT ck_pseries_unit CHECK (unit IN ('t', 'kg', 'lb', 'index', 'bbl', 'mmbtu')), 
+    FOREIGN KEY(material_id) REFERENCES materials (id), 
+    FOREIGN KEY(source_id) REFERENCES sources (id) ON DELETE SET NULL, 
+    UNIQUE (key)
+);
+
+CREATE INDEX ix_pseries_material_country ON price_series (material_id, country_code);
+
+CREATE TABLE price_alert_rules (
+    id SERIAL NOT NULL, 
+    series_id INTEGER NOT NULL, 
+    condition VARCHAR(20) NOT NULL, 
+    threshold NUMERIC(18, 4) NOT NULL, 
+    is_active BOOLEAN NOT NULL, 
+    last_triggered_at TIMESTAMP WITH TIME ZONE, 
+    created_by UUID, 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+    PRIMARY KEY (id), 
+    CONSTRAINT ck_palert_cond CHECK (condition IN ('above', 'below', 'change_pct')), 
+    FOREIGN KEY(created_by) REFERENCES users (id) ON DELETE SET NULL, 
+    FOREIGN KEY(series_id) REFERENCES price_series (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_price_alert_rules_series_id ON price_alert_rules (series_id);
+
+CREATE TABLE price_points (
+    id BIGSERIAL NOT NULL, 
+    series_id INTEGER NOT NULL, 
+    observed_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+    price NUMERIC(18, 4) NOT NULL, 
+    price_low NUMERIC(18, 4), 
+    price_high NUMERIC(18, 4), 
+    volume NUMERIC(20, 2), 
+    open_interest NUMERIC(20, 2), 
+    contract VARCHAR(40), 
+    is_provisional BOOLEAN NOT NULL, 
+    origin VARCHAR(20) NOT NULL, 
+    source_url TEXT, 
+    note TEXT, 
+    raw_record_id BIGINT, 
+    created_by UUID, 
+    collected_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+    PRIMARY KEY (id), 
+    CONSTRAINT ck_ppoint_positive CHECK (price > 0), 
+    FOREIGN KEY(created_by) REFERENCES users (id) ON DELETE SET NULL, 
+    FOREIGN KEY(raw_record_id) REFERENCES raw_records (id) ON DELETE SET NULL, 
+    FOREIGN KEY(series_id) REFERENCES price_series (id) ON DELETE CASCADE, 
+    CONSTRAINT uq_price_point UNIQUE (series_id, observed_at)
+);
+
+UPDATE alembic_version SET version_num='0002' WHERE alembic_version.version_num = '0001';
+
 COMMIT;
 

@@ -74,6 +74,12 @@ def trade_refresh():
         enqueue_if_enabled(key, jt)
 
 
+def price_refresh():
+    """Market prices: FRED (key-free), DCE (if credentials set) and any configured feed URLs."""
+    for key in ("fred", "dce", "price_feed"):
+        enqueue_if_enabled(key, "refresh")
+
+
 def contact_refresh():
     enqueue_if_enabled("apollo", "enrich_contacts", {"limit": 25})
     db = SessionLocal()
@@ -104,6 +110,7 @@ def housekeeping():
 def build_scheduler() -> BackgroundScheduler:
     db = SessionLocal()
     sched_cfg = get_setting(db, "refresh_schedule")
+    price_hours = get_setting(db, "price_tracking").get("refresh_hours", 6)
     db.close()
     s = BackgroundScheduler(timezone="UTC")
     s.add_job(weekly_discovery, "interval", days=sched_cfg.get("discovery_days", 7), id="discovery",
@@ -114,6 +121,8 @@ def build_scheduler() -> BackgroundScheduler:
               next_run_time=datetime.now(timezone.utc) + timedelta(minutes=3))
     s.add_job(website_refresh, "interval", days=1, id="website_refresh")  # daily sweep of records older than N days
     s.add_job(trade_refresh, "interval", days=sched_cfg.get("trade_days", 7), id="trade")
+    s.add_job(price_refresh, "interval", hours=price_hours, id="prices",
+              next_run_time=datetime.now(timezone.utc) + timedelta(minutes=2))
     s.add_job(contact_refresh, "interval", days=sched_cfg.get("contact_days", 30), id="contacts")
     s.add_job(rescore, "interval", hours=sched_cfg.get("rescore_hours", 24), id="rescore")
     s.add_job(housekeeping, "interval", minutes=30, id="housekeeping")

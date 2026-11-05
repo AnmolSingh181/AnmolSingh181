@@ -9,15 +9,17 @@
   python -m app.cli import-file PATH companies|shipments [ORIGIN_SOURCE_KEY]
   python -m app.cli rescore
   python -m app.cli evaluate                    # acceptance-criteria metrics from live data
+  python -m app.cli refresh-prices              # run all price connectors (FRED, DCE, feed URLs) now
+  python -m app.cli import-prices PATH          # CSV/XLSX: series_key, date, price[, low, high, note, source_url]
 """
 import json
 import sys
 
 from sqlalchemy import select
 
-from app.data.reference import COUNTRIES, DEFAULT_SETTINGS, MATERIALS, SOURCES
+from app.data.reference import COUNTRIES, DEFAULT_SETTINGS, MATERIALS, PRICE_SERIES, SOURCES
 from app.db import SessionLocal
-from app.models import AppSetting, Country, Material, Source, User
+from app.models import AppSetting, Country, Material, PriceSeries, Source, User
 
 
 def seed_reference(db):
@@ -47,8 +49,24 @@ def seed_reference(db):
     for k, v in DEFAULT_SETTINGS.items():
         if not db.get(AppSetting, k):
             db.add(AppSetting(key=k, value=v))
+    db.flush()
+    seed_price_series(db)
     db.commit()
-    print(f"Seeded {len(COUNTRIES)} countries, {len(MATERIALS)} materials, {len(SOURCES)} sources")
+    print(f"Seeded {len(COUNTRIES)} countries, {len(MATERIALS)} materials, {len(SOURCES)} sources, "
+          f"{len(PRICE_SERIES)} price series")
+
+
+def seed_price_series(db):
+    """Create default price series that don't exist yet. Existing series (and admin edits to them) are left alone."""
+    mats = {m.code: m.id for m in db.scalars(select(Material)).all()}
+    srcs = {s.key: s.id for s in db.scalars(select(Source)).all()}
+    for spec in PRICE_SERIES:
+        if db.scalar(select(PriceSeries.id).where(PriceSeries.key == spec["key"])):
+            continue
+        d = dict(spec)
+        material, source = d.pop("material", None), d.pop("source", None)
+        db.add(PriceSeries(**d, material_id=mats.get(material) if material else None, source_id=srcs.get(source),
+                           config={}))
 
 
 def create_admin(db, email, password):
@@ -108,6 +126,23 @@ def main(argv):
             from app.services.scoring import rescore_all
 
             print(f"rescored {rescore_all(db)}")
+        elif cmd == "refresh-prices":
+            from app.workers.runner import enqueue, execute
+
+            for key, jt in (("fred", "refresh"), ("dce", "refresh"), ("price_feed", "refresh")):
+                j = enqueue(db, key, jt, {})
+                db.commit()
+                j = execute(db, j)
+                print(f"{key}: {j.status} created={j.records_created} updated={j.records_updated} "
+                      f"{j.error_message or ''}")
+        elif cmd == "import-prices":
+            from app.connectors.imports import read_table
+            from app.services.prices import import_price_rows
+
+            headers, rows = read_table(open(args[0], "rb").read(), args[0])
+            res = import_price_rows(db, rows)
+            db.commit()
+            print(json.dumps(res, indent=1, default=str))
         elif cmd == "evaluate":
             from app.services.metrics import data_quality
 

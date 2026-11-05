@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     tradedata_pro_api_key: str | None = None
     kompass_api_key: str | None = None
 
+    # Market prices
+    fred_api_key: str | None = None   # optional: FRED works key-free via its public CSV download
+    dce_api_key: str | None = None    # Dalian Commodity Exchange data API
+    dce_secret: str | None = None
+
     # Enrichment / verification
     apollo_api_key: str | None = None
     zerobounce_api_key: str | None = None

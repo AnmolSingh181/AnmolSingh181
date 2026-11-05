@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Building2, Database, Gauge, LogOut, Menu, Moon, Search, Ship, Sparkles, Sun, Target, Users, X, ClipboardCheck, Settings } from "lucide-react";
+import { Bell, Building2, LineChart, Database, Gauge, LogOut, Menu, Moon, Search, Ship, Sparkles, Sun, Target, Users, X, ClipboardCheck, Settings } from "lucide-react";
 import { setToken } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useApp, useFetch } from "./providers";
@@ -12,6 +12,7 @@ const NAV = [
   { href: "/companies", label: "Company discovery", icon: Building2 },
   { href: "/search", label: "AI search", icon: Sparkles },
   { href: "/contacts", label: "Contacts", icon: Users },
+  { href: "/prices", label: "Market prices", icon: LineChart },
   { href: "/trade", label: "Trade intelligence", icon: Ship },
   { href: "/leads", label: "Leads / CRM", icon: Target },
   { href: "/sources", label: "Data sources", icon: Database },
@@ -116,7 +117,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-card lg:flex">
         <div className="flex h-14 items-center gap-2 border-b px-4">
           <span className="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">PE</span>
-          <div className="leading-tight"><p className="text-sm font-semibold">Plastic Intel</p><p className="text-[11px] text-muted-foreground">LDPE · LLDPE · HDPE</p></div>
+          <div className="leading-tight"><p className="text-sm font-semibold">Plastic Intel</p><p className="text-[11px] text-muted-foreground">PE · PP · PVC · prices</p></div>
         </div>
         <div className="flex-1 overflow-y-auto">{nav}</div>
         <div className="border-t p-3 text-xs text-muted-foreground"><p className="truncate">{me?.email}</p><p className="capitalize">{me?.role}</p></div>

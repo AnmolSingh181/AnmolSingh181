@@ -5,6 +5,10 @@ near-prime, off-grade, off-spec, recycled, reprocessed, PCR or PIR. The platform
 deals in which material, where, whether they buy or sell it, and how to contact them**, deduplicates them into master
 records, scores them, and gives you a CRM to work the leads.
 
+**Market prices** (`/prices`) tracks LDPE / LLDPE / HDPE / PP / PVC prices across India, China, the USA and other
+markets: DCE futures, producer list prices, import assessments, US price indices, crude/gas, with FX normalisation,
+cross-market charts and price alerts. See [docs/PRICES.md](docs/PRICES.md).
+
 **Nothing is fabricated.** Every company, material claim, specification, contact and shipment is stored with the
 source URL, collection time and the verbatim evidence it was derived from. Unknowns stay `unknown` / `needs_review`.
 
@@ -82,6 +86,8 @@ The database starts empty on purpose. To start filling it:
 3. Add a search API key (Brave / Serper / SerpAPI / Google CSE) and run **Search API discovery**, which builds
    MATERIAL × GRADE × COUNTRY × BUSINESS TYPE × BUYER/SELLER queries and queues every new company website for crawling.
 4. Run **UN Comtrade** / **US Census** for official country-level HS 3901/3915 trade statistics (free).
+5. **Market prices**: the worker pulls FRED (US resin indices, Brent, Henry Hub, FX) automatically; add
+   `DCE_API_KEY`/`DCE_SECRET` for China futures; enter or import Indian producer prices (see [docs/PRICES.md](docs/PRICES.md)).
 
 ### Demo environment (synthetic data only)
 
@@ -109,4 +115,5 @@ PROJECT_STATUS.md   completed / pending modules and next tasks
 - [Deployment (Supabase + Render + Vercel, or Docker)](docs/DEPLOYMENT.md)
 - [Testing & acceptance evaluation](docs/TESTING.md)
 - [Data sources: connected vs pending](docs/DATA_SOURCES.md)
+- [Market prices: polymer price tracking](docs/PRICES.md)
 - [Known limitations & future improvements](docs/LIMITATIONS.md)

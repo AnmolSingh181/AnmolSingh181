@@ -701,3 +701,101 @@ class AppSetting(Base):
     key: Mapped[str] = mapped_column(String(80), primary_key=True)
     value: Mapped[dict] = mapped_column(JSONB, nullable=False)
     updated_at: Mapped[datetime] = _updated()
+
+
+# ---------------------------------------------------------------- market prices
+class PriceSeries(Base):
+    """A market price benchmark tracked over time: one material, one market (country/location), one price basis.
+
+    Examples: 'DCE LLDPE futures, main contract (CNY/t)', 'US PPI plastic resins (index)',
+    'India LLDPE film, producer list price ex-Mumbai (INR/kg)'. Points live in price_points.
+    """
+
+    __tablename__ = "price_series"
+    __table_args__ = (
+        CheckConstraint(E.check_in("price_type", E.PRICE_TYPES), name="ck_pseries_type"),
+        CheckConstraint(E.check_in("frequency", E.PRICE_FREQUENCIES), name="ck_pseries_freq"),
+        CheckConstraint(E.check_in("unit", E.PRICE_UNITS), name="ck_pseries_unit"),
+        Index("ix_pseries_material_country", "material_id", "country_code"),
+    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    material_id: Mapped[int | None] = mapped_column(ForeignKey("materials.id"))  # null = multi-polymer index/feedstock
+    grade: Mapped[str | None] = mapped_column(String(120))            # e.g. "film C4", "raffia", "injection"
+    country_code: Mapped[str | None] = mapped_column(String(2))       # market the price applies to
+    location: Mapped[str | None] = mapped_column(String(120))         # e.g. "Dalian", "US Gulf", "ex-Mumbai"
+    price_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    currency: Mapped[str | None] = mapped_column(String(3))           # null for indices
+    unit: Mapped[str] = mapped_column(String(10), nullable=False)
+    incoterm: Mapped[str | None] = mapped_column(String(20))
+    frequency: Mapped[str] = mapped_column(String(10), nullable=False, default="daily")
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("sources.id", ondelete="SET NULL"))
+    external_code: Mapped[str | None] = mapped_column(String(120))     # FRED id, DCE variety, provider symbol
+    config: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _updated()
+
+    material: Mapped[Material | None] = relationship()
+    source: Mapped[Source | None] = relationship()
+
+
+class PricePoint(Base):
+    """One observation of a series. Never invented: each row carries where it came from."""
+
+    __tablename__ = "price_points"
+    __table_args__ = (
+        UniqueConstraint("series_id", "observed_at", name="uq_price_point"),
+        CheckConstraint("price > 0", name="ck_ppoint_positive"),
+    )  # uq_price_point (series_id, observed_at) also serves history range scans
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    series_id: Mapped[int] = mapped_column(ForeignKey("price_series.id", ondelete="CASCADE"), nullable=False)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)  # price date/time
+    price: Mapped[float] = mapped_column(Numeric(18, 4), nullable=False)
+    price_low: Mapped[float | None] = mapped_column(Numeric(18, 4))
+    price_high: Mapped[float | None] = mapped_column(Numeric(18, 4))
+    volume: Mapped[float | None] = mapped_column(Numeric(20, 2))
+    open_interest: Mapped[float | None] = mapped_column(Numeric(20, 2))
+    contract: Mapped[str | None] = mapped_column(String(40))          # futures contract used (e.g. l2601)
+    is_provisional: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    origin: Mapped[str] = mapped_column(String(20), nullable=False, default="connector")  # connector|manual|import
+    source_url: Mapped[str | None] = mapped_column(Text)
+    note: Mapped[str | None] = mapped_column(Text)
+    raw_record_id: Mapped[int | None] = mapped_column(ForeignKey("raw_records.id", ondelete="SET NULL"))
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    collected_at: Mapped[datetime] = _created()
+
+    series: Mapped[PriceSeries] = relationship()
+
+
+class FxRate(Base):
+    """Units of `currency` per 1 USD on `rate_date` (e.g. INR 84.1). Used to normalise prices across markets."""
+
+    __tablename__ = "fx_rates"
+    __table_args__ = (UniqueConstraint("currency", "rate_date", name="uq_fx_currency_date"),
+                      CheckConstraint("per_usd > 0", name="ck_fx_positive"))
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    rate_date: Mapped[date] = mapped_column(Date, nullable=False)
+    per_usd: Mapped[float] = mapped_column(Numeric(18, 8), nullable=False)
+    source: Mapped[str] = mapped_column(String(40), nullable=False)    # fred:DEXINUS | peg | manual
+    collected_at: Mapped[datetime] = _created()
+
+
+class PriceAlertRule(Base):
+    """Raise an alert when a new point crosses a threshold or moves more than X% versus the previous point."""
+
+    __tablename__ = "price_alert_rules"
+    __table_args__ = (CheckConstraint(E.check_in("condition", E.PRICE_ALERT_CONDITIONS), name="ck_palert_cond"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    series_id: Mapped[int] = mapped_column(ForeignKey("price_series.id", ondelete="CASCADE"), nullable=False, index=True)
+    condition: Mapped[str] = mapped_column(String(20), nullable=False)
+    threshold: Mapped[float] = mapped_column(Numeric(18, 4), nullable=False)  # price in series units, or % for change_pct
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    last_triggered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = _created()
+
+    series: Mapped[PriceSeries] = relationship()

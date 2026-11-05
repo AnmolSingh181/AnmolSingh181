@@ -74,6 +74,27 @@ MATERIALS = [
         "synonyms": ["EVA", "ethylene vinyl acetate", "MDPE", "medium density polyethylene", "UHMWPE"],
         "notes": "3901.30 EVA copolymers, 3901.90 other ethylene polymers.",
     },
+    # Other commodity polymers - tracked for market prices only (not lead-scoring targets).
+    {
+        "code": "PP", "name": "Polypropylene", "family": "polypropylene", "is_target": False,
+        "hs_codes": ["390210"], "synonyms": ["polypropylene", "PP homopolymer", "PP raffia", "PP copolymer"],
+        "notes": "HS 3902.10 polypropylene; 3902.30 propylene copolymers. Tracked for market prices.",
+    },
+    {
+        "code": "PVC", "name": "Polyvinyl Chloride", "family": "vinyl", "is_target": False,
+        "hs_codes": ["390410"], "synonyms": ["polyvinyl chloride", "PVC resin", "S-PVC", "suspension PVC"],
+        "notes": "HS 3904.10 PVC not mixed with other substances. Tracked for market prices.",
+    },
+    {
+        "code": "PET", "name": "Polyethylene Terephthalate", "family": "polyester", "is_target": False,
+        "hs_codes": ["390761"], "synonyms": ["PET resin", "bottle grade PET", "polyethylene terephthalate"],
+        "notes": "HS 3907.61 PET, viscosity number >= 78 ml/g (bottle grade). Tracked for market prices.",
+    },
+    {
+        "code": "PS", "name": "Polystyrene", "family": "styrenic", "is_target": False,
+        "hs_codes": ["390311", "390319"], "synonyms": ["polystyrene", "GPPS", "HIPS", "EPS"],
+        "notes": "HS 3903.11 expansible PS, 3903.19 other PS. Tracked for market prices.",
+    },
 ]
 
 # HS6 -> material code + whether the mapping is ambiguous. Description-based classification wins.
@@ -187,6 +208,68 @@ SOURCES = [
          credential_env_vars=["ZEROBOUNCE_API_KEY"], refresh_interval_days=30,
          terms_notes="Authorised email verification provider. Only this provider can set 'email_verified'.",
          pricing_notes="Pay-per-credit; small free allowance."),
+    # --- market prices
+    dict(key="fred", name="FRED (St. Louis Fed): US resin price indices, crude oil, natural gas, FX",
+         source_type="market_data", access_method="api", base_url="https://fred.stlouisfed.org/", status="active",
+         requires_credentials=False, credential_env_vars=["FRED_API_KEY"], refresh_interval_days=1,
+         terms_notes="Official public data (BLS producer price indices, EIA energy prices, Federal Reserve H.10 exchange "
+                     "rates) via FRED. Works without a key using the public CSV download; a free FRED_API_KEY uses the "
+                     "official JSON API. PPI series are monthly indices (not USD/t prices); FX rates are published "
+                     "with a few days' lag.",
+         pricing_notes="Free."),
+    dict(key="dce", name="Dalian Commodity Exchange (DCE) API: LLDPE / PP / PVC futures", source_type="market_data",
+         access_method="api", base_url="http://www.dce.com.cn/", status="awaiting_credentials",
+         requires_credentials=True, credential_env_vars=["DCE_API_KEY", "DCE_SECRET"], refresh_interval_days=1,
+         terms_notes="Official DCE data API (key + secret issued by DCE after registration on dce.com.cn). Daily "
+                     "settlement prices of the most-traded (highest open interest) contract for LLDPE (l), PP (pp) "
+                     "and PVC (v) in CNY/t. Review DCE's market-data terms for your intended use (internal analysis vs. "
+                     "redistribution) before enabling.",
+         pricing_notes="Verify current DCE API access conditions."),
+    dict(key="price_feed", name="Price feed URL (CSV / JSON)", source_type="market_data", access_method="api",
+         base_url=None, status="active", requires_credentials=False, credential_env_vars=[], refresh_interval_days=1,
+         terms_notes="Polls the feed URL configured on each price series (series config: feed_url, format, field names). "
+                     "Use for a price-reporting agency's API/export under your subscription, or a sheet your team "
+                     "maintains from producer price circulars (e.g. a published Google Sheet CSV). Secrets are referenced "
+                     "as ${ENV:VAR_NAME} and read from the environment, never stored in the database."),
+    dict(key="price_import", name="Price CSV / Excel import & manual entry", source_type="manual_import",
+         access_method="export_import", base_url=None, status="active", requires_credentials=False,
+         credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Upload price histories (series_key, date, price[, low, high, note, source_url]) from permitted "
+                     "exports, or type in prices from producer/distributor price circulars on the Market prices page."),
+    dict(key="icis", name="ICIS (LSEG)", source_type="market_data", access_method="export_import",
+         base_url="https://www.icis.com/", status="manual_only", requires_credentials=True, credential_env_vars=[],
+         refresh_interval_days=None,
+         terms_notes="Price-reporting agency: polyolefin, PVC, PET assessments for Asia, India, US, Europe. Subscription "
+                     "data - import permitted exports, or configure a price_feed series if your contract includes an API.",
+         pricing_notes="Paid subscription."),
+    dict(key="platts", name="S&P Global Commodity Insights (Platts)", source_type="market_data",
+         access_method="export_import", base_url="https://www.spglobal.com/commodityinsights/", status="manual_only",
+         requires_credentials=True, credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Price-reporting agency (polymer assessments incl. CFR India, CFR China, FAS Houston). Subscription "
+                     "data - import permitted exports or configure a price_feed series under your API contract.",
+         pricing_notes="Paid subscription."),
+    dict(key="argus", name="Argus Media", source_type="market_data", access_method="export_import",
+         base_url="https://www.argusmedia.com/", status="manual_only", requires_credentials=True,
+         credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Price-reporting agency (petrochemicals/polymers). Import permitted exports or configure a price_feed "
+                     "series under your contract.", pricing_notes="Paid subscription."),
+    dict(key="chemorbis", name="ChemOrbis", source_type="market_data", access_method="export_import",
+         base_url="https://www.chemorbis.com/", status="manual_only", requires_credentials=True,
+         credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Weekly/daily polymer prices for China, India, SE Asia, Turkey, Europe. Import permitted exports.",
+         pricing_notes="Paid subscription."),
+    dict(key="polymerupdate", name="Polymerupdate (India)", source_type="market_data", access_method="export_import",
+         base_url="https://www.polymerupdate.com/", status="manual_only", requires_credentials=True,
+         credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Indian domestic polymer prices (producer list prices, distributor prices). Import permitted "
+                     "exports or configure a price_feed series if your plan includes data access.",
+         pricing_notes="Paid subscription."),
+    dict(key="sunsirs", name="SunSirs / 100ppi (China spot)", source_type="market_data", access_method="export_import",
+         base_url="https://www.sunsirs.com/", status="manual_only", requires_credentials=False,
+         credential_env_vars=[], refresh_interval_days=None,
+         terms_notes="Chinese domestic spot benchmark prices (LLDPE, HDPE, LDPE, PP, PVC). Automated collection is not "
+                     "performed; enter prices manually or import permitted exports.",
+         pricing_notes="Free web pages; data services paid - verify terms."),
     # --- manual / AI
     dict(key="csv_import", name="CSV / Excel import", source_type="manual_import", access_method="export_import",
          base_url=None, status="active", requires_credentials=False, credential_env_vars=[], refresh_interval_days=None,
@@ -202,6 +285,89 @@ SOURCES = [
          base_url=None, status="disabled", requires_credentials=False, credential_env_vars=[], refresh_interval_days=None,
          terms_notes="Synthetic records for APP_ENV=demo only. Never shown in production."),
 ]
+
+# Default market price series. Seeded idempotently by key; admins can add more on the Market prices page.
+# Series with source "price_import" have no automatic feed: fill them by manual entry / import or attach a feed URL.
+PRICE_SERIES = [
+    # USA - official indices and energy (FRED, key-free)
+    dict(key="us_ppi_plastic_resins", name="US PPI: Plastic resins & materials", material=None, country_code="US",
+         location="United States", price_type="index", currency=None, unit="index", frequency="monthly", source="fred",
+         external_code="WPU066", notes="BLS producer price index, 1982=100, not seasonally adjusted."),
+    dict(key="us_ppi_thermoplastic", name="US PPI: Thermoplastic resins & plastics materials", material=None,
+         country_code="US", location="United States", price_type="index", currency=None, unit="index",
+         frequency="monthly", source="fred", external_code="WPU0662",
+         notes="BLS producer price index, 1982=100. Covers PE, PP, PVC, PS, PET and other thermoplastics."),
+    dict(key="us_ppi_resin_mfg", name="US PPI: Plastics material & resin manufacturing (industry)", material=None,
+         country_code="US", location="United States", price_type="index", currency=None, unit="index",
+         frequency="monthly", source="fred", external_code="PCU325211325211",
+         notes="BLS PPI by industry, NAICS 325211."),
+    dict(key="us_ppi_pe_film", name="US PPI: Unlaminated polyethylene film & sheet", material=None, country_code="US",
+         location="United States", price_type="index", currency=None, unit="index", frequency="monthly", source="fred",
+         external_code="WPU072205011", notes="Converted-product index (PE film), a demand-side signal for PE resin."),
+    dict(key="brent_spot", name="Brent crude oil spot (FOB Europe)", material=None, country_code=None,
+         location="Europe (Brent)", price_type="feedstock", currency="USD", unit="bbl", frequency="daily", source="fred",
+         external_code="DCOILBRENTEU", notes="EIA via FRED. Naphtha-based Asian polymer costs track crude."),
+    dict(key="henry_hub_gas", name="Henry Hub natural gas spot", material=None, country_code="US",
+         location="Henry Hub, Louisiana", price_type="feedstock", currency="USD", unit="mmbtu", frequency="daily",
+         source="fred", external_code="DHHNGSP", notes="EIA via FRED. US ethane-based PE costs track natural gas."),
+    # China - exchange futures (DCE API, needs DCE key/secret)
+    dict(key="dce_lldpe", name="China LLDPE futures, DCE main contract", material="LLDPE", country_code="CN",
+         location="Dalian Commodity Exchange", price_type="futures", currency="CNY", unit="t", frequency="daily",
+         source="dce", external_code="l", grade="LLDPE film (exchange deliverable)",
+         notes="Daily settlement price of the highest open-interest contract. Prices include 13% VAT."),
+    dict(key="dce_pp", name="China PP futures, DCE main contract", material="PP", country_code="CN",
+         location="Dalian Commodity Exchange", price_type="futures", currency="CNY", unit="t", frequency="daily",
+         source="dce", external_code="pp", grade="PP raffia (exchange deliverable)",
+         notes="Daily settlement price of the highest open-interest contract. Prices include 13% VAT."),
+    dict(key="dce_pvc", name="China PVC futures, DCE main contract", material="PVC", country_code="CN",
+         location="Dalian Commodity Exchange", price_type="futures", currency="CNY", unit="t", frequency="daily",
+         source="dce", external_code="v", grade="S-PVC (exchange deliverable)",
+         notes="Daily settlement price of the highest open-interest contract. Prices include 13% VAT."),
+    # India - producer list prices (no free official feed: manual entry, import, or a price_feed URL)
+    dict(key="in_lldpe_film_list", name="India LLDPE film, producer list price", material="LLDPE", country_code="IN",
+         location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
+         source="price_import", grade="LLDPE film (butene)",
+         notes="Enter from producer/distributor price circulars (Reliance, IOCL, GAIL, HPL...). State basis "
+               "(ex-works / delivered, incl. or excl. GST) in the note of each price."),
+    dict(key="in_hdpe_film_list", name="India HDPE film, producer list price", material="HDPE", country_code="IN",
+         location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
+         source="price_import", grade="HDPE film", notes="Enter from producer/distributor price circulars."),
+    dict(key="in_ldpe_film_list", name="India LDPE film, producer list price", material="LDPE", country_code="IN",
+         location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
+         source="price_import", grade="LDPE film", notes="Enter from producer/distributor price circulars."),
+    dict(key="in_pp_raffia_list", name="India PP raffia, producer list price", material="PP", country_code="IN",
+         location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
+         source="price_import", grade="PP raffia homopolymer", notes="Enter from producer/distributor price circulars."),
+    dict(key="in_pvc_list", name="India PVC suspension, producer list price", material="PVC", country_code="IN",
+         location="ex-works", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
+         source="price_import", grade="S-PVC K67", notes="Enter from producer/distributor price circulars."),
+    # USA - physical market (subscription data: manual entry / import / price_feed)
+    dict(key="us_lldpe_export", name="US LLDPE film export price, FAS Houston", material="LLDPE", country_code="US",
+         location="FAS Houston", price_type="assessment", currency="USD", unit="t", incoterm="FAS", frequency="weekly",
+         source="price_import", grade="LLDPE butene film",
+         notes="Enter from your price-reporting subscription (ICIS / Platts / Argus / CDI) or connect a price feed."),
+    dict(key="us_hdpe_export", name="US HDPE blow moulding export price, FAS Houston", material="HDPE",
+         country_code="US", location="FAS Houston", price_type="assessment", currency="USD", unit="t", incoterm="FAS",
+         frequency="weekly", source="price_import", grade="HDPE blow moulding",
+         notes="Enter from your price-reporting subscription or connect a price feed."),
+    # China - physical import market
+    dict(key="cn_lldpe_cfr", name="China LLDPE film import price, CFR China", material="LLDPE", country_code="CN",
+         location="CFR China main ports", price_type="assessment", currency="USD", unit="t", incoterm="CFR",
+         frequency="weekly", source="price_import", grade="LLDPE butene film",
+         notes="Enter from your price-reporting subscription or connect a price feed."),
+    dict(key="in_lldpe_cfr", name="India LLDPE film import price, CFR India", material="LLDPE", country_code="IN",
+         location="CFR Nhava Sheva", price_type="assessment", currency="USD", unit="t", incoterm="CFR",
+         frequency="weekly", source="price_import", grade="LLDPE butene film",
+         notes="Enter from your price-reporting subscription or connect a price feed."),
+]
+
+# FRED H.10 exchange-rate series used to normalise prices. invert=True: series is USD per unit of currency.
+FX_SERIES = {
+    "INR": ("DEXINUS", False), "CNY": ("DEXCHUS", False), "EUR": ("DEXUSEU", True), "GBP": ("DEXUSUK", True),
+    "JPY": ("DEXJPUS", False), "KRW": ("DEXKOUS", False), "THB": ("DEXTHUS", False), "MYR": ("DEXMAUS", False),
+    "MXN": ("DEXMXUS", False), "BRL": ("DEXBZUS", False), "CAD": ("DEXCAUS", False), "TWD": ("DEXTAUS", False),
+    "SGD": ("DEXSIUS", False),
+}
 
 DEFAULT_SETTINGS = {
     "lead_scoring": {
@@ -229,6 +395,14 @@ DEFAULT_SETTINGS = {
         "follow_partner_links": True,   # crawl companies linked from distributor / agent / partner pages
         "max_link_depth": 2,            # manufacturer -> distributor -> distributor's partners
         "max_links_per_site": 40,
+    },
+    "price_tracking": {
+        "refresh_hours": 6,             # how often the worker polls price connectors (FRED, DCE, feed URLs)
+        "history_start": "2021-01-01",  # first-run backfill start for connectors that support history
+        # Fixed official pegs used when no market rate is stored (units per USD).
+        "fx_pegs": {"AED": 3.6725, "SAR": 3.75, "OMR": 0.3845, "QAR": 3.64, "BHD": 0.376},
+        # A series is flagged stale when its latest point is older than this many days, by frequency.
+        "stale_after_days": {"intraday": 1, "daily": 5, "weekly": 12, "monthly": 50},
     },
     "refresh_schedule": {
         "discovery_days": 7,

@@ -20,6 +20,9 @@
 - **Scheduler intervals** are read at worker start; restart the worker after changing them.
 - **Supabase Auth** mode is supported by the API; the bundled login page uses local auth.
 - **Lead score** is a heuristic prioritisation, not a conversion probability.
+- **Market prices are not tick-by-tick.** Free official sources are daily (DCE settlements, crude/gas, FX) or monthly
+  (US PPI indices). Indian producer prices and physical import/export assessments need manual entry, CSV import or a
+  paid feed. FRED and DCE connectors are untested against the live services (network blocked in the build env).
 
 ## Future improvements
 1. Background processing for large imports (queue file to Supabase Storage + worker job).
@@ -27,6 +30,7 @@
 3. Company-level customs datasets where legally available (e.g. US bill-of-lading via licensed provider).
 4. Fuller Supabase Auth UI (magic link / SSO) and team-shared leads.
 5. Metabase on the same Postgres for ad-hoc analytics; scheduled email digests.
-6. Price trend charts from `price_observations` and `trade_statistics`.
+6. Trade-statistics trend charts; implied unit values (USD/t) from `trade_statistics` as an extra price signal.
+7. More free price sources: India WPI (Office of the Economic Adviser), ZCE/SHFE contracts, DCE night session.
 7. Expand markets: activate Turkey, Thailand, Malaysia, Indonesia, Korea, Germany, Netherlands in Settings.
 8. Embedding-based similarity for duplicate suggestions and semantic search.

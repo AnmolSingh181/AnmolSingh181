@@ -12,6 +12,7 @@ services:
       - { key: JWT_SECRET, generateValue: true }
       - { key: CORS_ORIGINS, sync: false }
       - { key: OPENAI_API_KEY, sync: false }
+      - { key: FRED_API_KEY, sync: false }
   - type: worker
     name: plastic-intel-worker
     runtime: docker
@@ -23,3 +24,6 @@ services:
       - { key: DATABASE_URL, sync: false }
       - { key: JWT_SECRET, sync: false }
       - { key: OPENAI_API_KEY, sync: false }
+      - { key: FRED_API_KEY, sync: false }
+      - { key: DCE_API_KEY, sync: false }
+      - { key: DCE_SECRET, sync: false }

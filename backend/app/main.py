@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api import admin, companies, contacts, leads, misc, trade
+from app.api import admin, companies, contacts, leads, misc, prices, trade
 from app.config import get_settings
 from app.db import SessionLocal
 
@@ -15,13 +15,15 @@ settings = get_settings()
 app = FastAPI(
     title="Global Plastic Trading Intelligence API",
     version="0.1.0",
-    description="B2B intelligence for LDPE / LLDPE / HDPE (virgin, near-prime, off-grade, recycled). "
+    description="B2B intelligence for LDPE / LLDPE / HDPE (virgin, near-prime, off-grade, recycled) and market price "
+                "tracking for commodity polymers across India, China, the USA and other markets. "
                 "All records are traceable to their source; nothing is fabricated.",
 )
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
 
-for r in (misc.router, admin.router, companies.router, contacts.router, trade.router, leads.router):
+for r in (misc.router, admin.router, companies.router, contacts.router, trade.router, leads.router,
+          prices.router):
     app.include_router(r)
 
 
