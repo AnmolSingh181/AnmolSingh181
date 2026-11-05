@@ -129,7 +129,11 @@ def main(argv):
         elif cmd == "refresh-prices":
             from app.workers.runner import enqueue, execute
 
-            for key, jt in (("fred", "refresh"), ("dce", "refresh"), ("price_feed", "refresh")):
+            for key, jt in (("fred", "refresh"), ("dce", "refresh"), ("price_feed", "refresh"), ("plastemart", "refresh")):
+                src = db.scalar(select(Source).where(Source.key == key))
+                if not src or not src.enabled:
+                    print(f"{key}: skipped (source {src.status if src else 'missing'}, not enabled)")
+                    continue
                 j = enqueue(db, key, jt, {})
                 db.commit()
                 j = execute(db, j)

@@ -75,8 +75,8 @@ def trade_refresh():
 
 
 def price_refresh():
-    """Market prices: FRED (key-free), DCE (if credentials set) and any configured feed URLs."""
-    for key in ("fred", "dce", "price_feed"):
+    """Market prices: FRED (key-free), DCE (if credentials set), feed URLs, Plastemart (once terms confirmed)."""
+    for key in ("fred", "dce", "price_feed", "plastemart"):
         enqueue_if_enabled(key, "refresh")
 
 

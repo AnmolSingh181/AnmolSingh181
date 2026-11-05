@@ -17,7 +17,7 @@ from app.services import prices as P
 
 router = APIRouter(prefix="/prices", tags=["prices"])
 
-PRICE_SOURCES = ("fred", "dce", "price_feed")
+PRICE_SOURCES = ("fred", "dce", "price_feed", "plastemart")
 
 
 def _series(db: Session, series_id: int) -> PriceSeries:

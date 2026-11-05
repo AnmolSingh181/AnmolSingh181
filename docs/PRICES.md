@@ -16,6 +16,7 @@ therefore combines:
 | USA | **BLS producer price indices** via FRED: plastic resins (WPU066), thermoplastics (WPU0662), resin manufacturing (PCU325211325211), PE film (WPU072205011) | Monthly, ~2-week lag | Free, no key |
 | Global | **Brent crude** (DCOILBRENTEU) and **Henry Hub gas** (DHHNGSP) via FRED: the cost drivers for naphtha-based (Asia) and ethane-based (US) polymers | Daily, few-day lag | Free, no key |
 | FX | Federal Reserve H.10 daily rates via FRED (INR, CNY, EUR, GBP, JPY, KRW, THB, MYR, …) + official pegs (AED, SAR, OMR, QAR, BHD) | Daily, few-day lag | Free, no key |
+| India | **Plastemart producer price lists** (PE / PP / PVC; Reliance as the default benchmark) | Whenever Plastemart updates the page (checked every refresh) | Free page; enable after confirming plastemart.com's terms |
 | India | **Producer / distributor list prices** (Reliance, IOCL, GAIL, HPL…), **CFR India** import prices | As often as you enter them | Manual entry, CSV import, or a feed URL |
 | USA / China physical | **FAS Houston**, **CFR China** assessments | As your subscription publishes | Your PRA subscription via import or feed URL |
 
@@ -37,15 +38,35 @@ estimated.
 2. **China futures:** set `DCE_API_KEY` and `DCE_SECRET`, then enable the *Dalian Commodity Exchange* source in
    **Data sources**. Review DCE's market-data terms for your use. Base URL / paths can be overridden in the source
    config (`base_url`, `token_path`, `quotes_path`).
-3. **Manual entry:** open a series → *Add a price*. Put the basis in the note (e.g. "Reliance circular 41, ex-Mumbai,
+3. **India via Plastemart:** in **Data sources**, open *Plastemart*, review plastemart.com's terms of use, click
+   *Confirm terms*, then enable it. The connector reads the price tables on
+   `https://www.plastemart.com/polymer-price-list-pe-pp-pvc` (robots.txt respected, rate-limited) and maps rows to the
+   India series with rules in the source config. Defaults use Reliance grades:
+   ```json
+   {
+     "pages": [{"url": "https://www.plastemart.com/polymer-price-list-pe-pp-pvc"}],
+     "rules": [
+       {"series_key": "in_lldpe_film_list", "polymer": "LLDPE", "grade": "film|butene|\\bc4\\b", "producer": "reliance|\\bril\\b"},
+       {"series_key": "in_pp_raffia_list", "polymer": "PP", "grade": "raffia|tape", "producer": "reliance|\\bril\\b"}
+     ],
+     "price_unit": "t",
+     "plausible_per_kg": [20, 1000]
+   }
+   ```
+   A row is stored only if it has a price under a price header and an effective date (date column, or "w.e.f. …" near
+   the table). INR/MT prices are converted to the series unit (INR/kg). Unmatched rows are listed in the job log so you
+   can add rules, e.g. a series per producer (`in_lldpe_film_iocl` with `"producer": "indian oil|iocl"`). Revision
+   notices ("+INR 2000/MT") are not turned into prices. If the page needs a login or changes layout, the job log says
+   so and nothing is stored.
+4. **Manual entry:** open a series → *Add a price*. Put the basis in the note (e.g. "Reliance circular 41, ex-Mumbai,
    excl. GST").
-4. **CSV / Excel import:** *Import CSV* or `python -m app.cli import-prices FILE`:
+5. **CSV / Excel import:** *Import CSV* or `python -m app.cli import-prices FILE`:
    ```csv
    series_key,date,price,low,high,note,source_url
    in_lldpe_film_list,2026-10-12,104.5,,,ex-Mumbai excl. GST,
    ```
    Header synonyms are accepted (`value`, `settle`, `close` for price; `observed_at`, `as_of` for date).
-5. **Feed URL (CSV / JSON):** set the series' data source to *Feed URL* and its config, for example a Google Sheet your
+6. **Feed URL (CSV / JSON):** set the series' data source to *Feed URL* and its config, for example a Google Sheet your
    team keeps from price circulars (*File → Share → Publish to web → CSV*) or your PRA's API:
    ```json
    {
@@ -108,5 +129,7 @@ The older `price_observations` table keeps company-specific offers extracted fro
 
 The FRED and DCE connectors are built to the providers' documented formats (FRED `fredgraph.csv` / `series/observations`;
 DCE token + `dayQuotes` endpoints) and tested against recorded-shape mock responses. Live calls could not be made from
-the build environment (outbound network blocked), so check the first job log after deployment
+the build environment (outbound network blocked), so check the first job log after deployment. The Plastemart parser is
+generic (header/keyword based) and tested on a synthetic page, because plastemart.com could not be fetched from the
+build environment; check its first job log (rows found / mapped / unmatched) and adjust `rules` or `table_selector`
 (**Data sources → Jobs**). If DCE changes its API, adjust `base_url`/paths in the source config.

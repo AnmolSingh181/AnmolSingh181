@@ -22,13 +22,14 @@ _Last updated: 2026-11-05_
 | 3 | Configurable explainable lead scoring | `services/scoring.py` |
 | 4 | Combined search filters, NL query parsing | `services/search.py`, `services/nl_search.py` |
 | 5 | Job queue (SKIP LOCKED, retries, isolation), scheduler, alerts + webhook | `workers/`, `services/alerts.py` |
-| 6 | 47 backend tests, Playwright UI walkthrough, acceptance metrics endpoint | `backend/tests/`, `services/metrics.py` |
+| 6 | 51 backend tests, Playwright UI walkthrough, acceptance metrics endpoint | `backend/tests/`, `services/metrics.py` |
 | 7 | Market prices: series/points/FX/alert tables (migration 0002), 18 default series (IN/CN/US/global) | `models.py`, `migrations/versions/0002_*`, `data/reference.py` |
 | 7 | Price connectors: FRED (key-free; PPI, crude, gas, FX), DCE futures API, generic CSV/JSON feed URL | `connectors/prices.py` |
+| 7 | Plastemart India producer price lists (config-driven HTML tables, terms-gated) | `connectors/price_pages.py` |
 | 7 | Normalisation (FX on price date, t/kg/lb), board, compare, alerts, CSV import, manual entry; `/prices` UI | `services/prices.py`, `api/prices.py`, `frontend/src/app/(app)/prices/` |
 
 ## Pending / requires owner action
-- Market prices: request DCE data-API credentials (China futures) and review DCE terms; decide which paid price feed (if any) to connect for live Indian/CFR prices; start entering producer price circulars.
+- Market prices: review plastemart.com terms, confirm and enable the Plastemart source, check its first job log; request DCE data-API credentials (China futures) and review DCE terms; decide which paid price feed (if any) to connect for live Indian/CFR prices; start entering producer price circulars.
 - Provide credentials: search API (Brave/Serper), OpenAI (optional), Apollo, ZeroBounce, trade-data contracts.
 - Review terms for ENF, Plasticker, Plastics Markets, EPDA; configure selectors if permitted.
 - First live runs of Census/Comtrade/search connectors after deployment (untested live: build sandbox blocked egress).

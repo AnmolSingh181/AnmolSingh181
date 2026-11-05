@@ -231,6 +231,16 @@ SOURCES = [
                      "Use for a price-reporting agency's API/export under your subscription, or a sheet your team "
                      "maintains from producer price circulars (e.g. a published Google Sheet CSV). Secrets are referenced "
                      "as ${ENV:VAR_NAME} and read from the environment, never stored in the database."),
+    dict(key="plastemart", name="Plastemart: Indian producer polymer price lists (PE / PP / PVC)",
+         source_type="market_data", access_method="scrape",
+         base_url="https://www.plastemart.com/polymer-price-list-pe-pp-pvc", status="requires_terms_review",
+         requires_credentials=False, credential_env_vars=[], refresh_interval_days=1,
+         terms_notes="Public price-list page of Indian producer prices (Reliance, IOCL, GAIL, HPL, ...). Disabled until an "
+                     "admin reviews plastemart.com's terms of use and confirms automated collection is permitted. "
+                     "Respects robots.txt, rate-limited, identifies itself. Table rows are mapped to the India "
+                     "producer-list series by config.rules (default: Reliance film / raffia / PVC grades); unmatched "
+                     "rows are logged, not stored. Rows need a price and an effective date (date column or "
+                     "'w.e.f.' near the table). Revision notices (e.g. '+INR 2000/MT') are not converted into prices."),
     dict(key="price_import", name="Price CSV / Excel import & manual entry", source_type="manual_import",
          access_method="export_import", base_url=None, status="active", requires_credentials=False,
          credential_env_vars=[], refresh_interval_days=None,
@@ -327,8 +337,9 @@ PRICE_SERIES = [
     dict(key="in_lldpe_film_list", name="India LLDPE film, producer list price", material="LLDPE", country_code="IN",
          location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
          source="price_import", grade="LLDPE film (butene)",
-         notes="Enter from producer/distributor price circulars (Reliance, IOCL, GAIL, HPL...). State basis "
-               "(ex-works / delivered, incl. or excl. GST) in the note of each price."),
+         notes="Reliance benchmark grade. Filled by the Plastemart connector once enabled, or enter from "
+               "producer/distributor price circulars (Reliance, IOCL, GAIL, HPL...). State basis (ex-works / "
+               "delivered, incl. or excl. GST) in the note of each price."),
     dict(key="in_hdpe_film_list", name="India HDPE film, producer list price", material="HDPE", country_code="IN",
          location="ex-Mumbai", price_type="producer_list", currency="INR", unit="kg", frequency="weekly",
          source="price_import", grade="HDPE film", notes="Enter from producer/distributor price circulars."),

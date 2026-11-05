@@ -5,6 +5,7 @@ from app.connectors.gated import (ApolloConnector, ImportYetiConnector, KompassC
                                   TradeDataProConnector, VolzaConnector, make_directory)
 from app.connectors.government import ComtradeConnector, UsCensusConnector
 from app.connectors.imports import CsvImportConnector
+from app.connectors.price_pages import PlastemartConnector
 from app.connectors.prices import DceConnector, FredConnector, PriceFeedConnector
 from app.connectors.web_search import WebSearchConnector
 from app.connectors.website import WebsiteConnector
@@ -32,6 +33,7 @@ CONNECTORS: dict[str, type[BaseConnector]] = {
     "fred": FredConnector,
     "dce": DceConnector,
     "price_feed": PriceFeedConnector,
+    "plastemart": PlastemartConnector,
 }
 
 # Default job type per source for "Run now"
@@ -55,6 +57,7 @@ DEFAULT_JOB = {
     "fred": "refresh",
     "dce": "refresh",
     "price_feed": "refresh",
+    "plastemart": "refresh",
 }
 
 
